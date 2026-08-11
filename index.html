@@ -59,14 +59,20 @@ body{
 }
 .hud .dot{color:var(--amber);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+.hud-right{display:flex;align-items:center;gap:8px;}
 .hud-sync{font-family:var(--mono);font-size:10px;letter-spacing:.08em;padding:2px 8px;border:1px solid var(--line);}
 .hud-sync.syncing{color:var(--amber);border-color:var(--amber-dim);}
 .hud-sync.saved{color:var(--green);border-color:#1a3d2b;}
 .hud-sync.error{color:var(--red);border-color:var(--red-dim);}
+.reset-token-btn{
+  font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+  background:none;border:1px solid var(--line);color:var(--text-faint);
+  padding:2px 8px;cursor:pointer;
+}
+.reset-token-btn:hover{border-color:var(--red);color:var(--red);}
 
 h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter-spacing:.02em;margin:0 0 4px;line-height:1;}
 .sub{color:var(--text-dim);font-size:14px;margin:0 0 22px;max-width:640px;}
-</style>
 
 /* RULE PLAQUE */
 .rule-plaque{
@@ -99,7 +105,7 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;flex:1;}
 .item{display:flex;align-items:flex-start;gap:8px;background:var(--panel-raised);border:1px solid var(--line);padding:8px 9px;font-size:13.5px;line-height:1.4;}
 .item .item-text{flex:1;word-break:break-word;}
-.item .item-date{font-family:var(--mono);font-size:10.5px;color:var(--red);white-space:nowrap;margin-right:4px;padding-top:1px;}
+.item .item-date{font-family:var(--mono);font-size:10.5px;white-space:nowrap;margin-right:4px;padding-top:1px;}
 .item .item-date.urgent{color:var(--red);font-weight:700;}
 .item .item-date.soon{color:var(--amber);}
 .item .item-date.ok{color:var(--green);}
@@ -130,14 +136,6 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .archive-item button:hover{color:var(--red);}
 .archive-note{font-family:var(--mono);font-size:11px;color:var(--text-faint);margin-top:10px;letter-spacing:.02em;}
 
-/* RESET TOKEN */
-.reset-token-btn{
-  font-family:var(--mono);font-size:10px;letter-spacing:.08em;
-  background:none;border:1px solid var(--line);color:var(--text-faint);
-  padding:2px 8px;cursor:pointer;margin-left:8px;
-}
-.reset-token-btn:hover{border-color:var(--red);color:var(--red);}
-
 footer{text-align:center;color:var(--text-faint);font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;margin-top:34px;}
 </style>
 </head>
@@ -162,9 +160,9 @@ footer{text-align:center;color:var(--text-faint);font-family:var(--mono);font-si
 <div class="wrap">
   <div class="hud">
     <span><span class="dot">●</span> SYSTEM STATUS — <span id="hud-status">ONE TRUSTED ENTRY POINT</span></span>
-    <span style="display:flex;align-items:center;gap:8px;">
+    <span class="hud-right">
       <span class="hud-sync" id="hud-sync"></span>
-      <button class="reset-token-btn" onclick="resetToken()" title="Change GitHub token">TOKEN</button>
+      <button class="reset-token-btn" onclick="resetToken()">TOKEN</button>
       <span id="hud-clock"></span>
     </span>
   </div>
@@ -240,8 +238,8 @@ const TOKEN_KEY = 'cc:gh_token';
 // ── STATE ─────────────────────────────────────────────────────────────────────
 const SECTIONS = ['now','next','waiting','projects','deadlines','learning'];
 let state = {now:[],next:[],waiting:[],projects:[],deadlines:[],learning:[],archive:[]};
-let fileSha = null;       // GitHub requires the current sha to update a file
-let saveTimer = null;     // debounce handle
+let fileSha  = null;
+let saveTimer = null;
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 function getToken(){ return localStorage.getItem(TOKEN_KEY); }
@@ -263,7 +261,6 @@ async function submitToken(){
   const token = input.value.trim();
   if(!token){ errEl.textContent = 'Paste your token first.'; return; }
   errEl.textContent = 'Verifying...';
-  // quick validation: hit the repo endpoint
   const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}`, {
     headers:{ Authorization: `Bearer ${token}` }
   });
@@ -276,7 +273,7 @@ async function submitToken(){
 }
 
 function resetToken(){
-  if(!confirm('Clear saved token? You\'ll need to paste it again.')) return;
+  if(!confirm("Clear saved token? You'll need to paste it again.")) return;
   localStorage.removeItem(TOKEN_KEY);
   showTokenGate();
 }
@@ -288,10 +285,9 @@ async function loadFromGitHub(){
   setSyncStatus('syncing','LOADING...');
   try {
     const res = await fetch(GH_API, {
-      headers:{ Authorization: `Bearer ${token}`, Accept: 'application/vnd.github.v3+json' }
+      headers:{ Authorization:`Bearer ${token}`, Accept:'application/vnd.github.v3+json' }
     });
     if(res.status === 404){
-      // File doesn't exist yet — start fresh, will create on first save
       fileSha = null;
       setSyncStatus('saved','READY');
       renderAll();
@@ -301,7 +297,6 @@ async function loadFromGitHub(){
     const json = await res.json();
     fileSha = json.sha;
     const decoded = JSON.parse(atob(json.content.replace(/\n/g,'')));
-    // merge in case keys are missing
     SECTIONS.forEach(k => { state[k] = decoded[k] || []; });
     state.archive = decoded.archive || [];
     setSyncStatus('saved','SYNCED');
@@ -318,24 +313,17 @@ async function saveToGitHub(){
   setSyncStatus('syncing','SAVING...');
   try {
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(state, null, 2))));
-    const body = {
-      message: `update: ${new Date().toISOString()}`,
-      content,
-      ...(fileSha ? { sha: fileSha } : {})
-    };
+    const body = { message:`update: ${new Date().toISOString()}`, content, ...(fileSha ? {sha:fileSha} : {}) };
     const res = await fetch(GH_API, {
-      method: 'PUT',
+      method:'PUT',
       headers:{
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
+        Authorization:`Bearer ${token}`,
+        Accept:'application/vnd.github.v3+json',
+        'Content-Type':'application/json'
       },
       body: JSON.stringify(body)
     });
-    if(!res.ok){
-      const err = await res.json();
-      throw new Error(err.message || 'HTTP ' + res.status);
-    }
+    if(!res.ok){ const err = await res.json(); throw new Error(err.message||'HTTP '+res.status); }
     const json = await res.json();
     fileSha = json.content.sha;
     setSyncStatus('saved','SAVED ✓');
@@ -345,15 +333,12 @@ async function saveToGitHub(){
   }
 }
 
-// Debounce saves — wait 800ms after last change before hitting GitHub
 function scheduleSave(){
   clearTimeout(saveTimer);
   setSyncStatus('syncing','...');
   saveTimer = setTimeout(() => saveToGitHub(), 800);
 }
-</script>
 
-<script>
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function renderAll(){ SECTIONS.forEach(renderSection); renderArchive(); }
 
@@ -363,23 +348,20 @@ function renderSection(key){
   const items = state[key];
   countEl.textContent = items.length;
   if(items.length === 0){ ul.innerHTML = '<div class="empty-hint">Nothing here. That\'s fine.</div>'; return; }
-  let sorted = items;
-  if(key === 'deadlines'){
-    sorted = [...items].sort((a,b) => (a.date||'9999').localeCompare(b.date||'9999'));
-  }
+  let sorted = key === 'deadlines' ? [...items].sort((a,b) => (a.date||'9999').localeCompare(b.date||'9999')) : items;
   ul.innerHTML = sorted.map(it => {
     let dateBadge = '';
     if(it.date){
       const cls = deadlineClass(it.date);
       dateBadge = `<span class="item-date ${cls}">${formatDate(it.date)}</span>`;
     }
-    return `<li class="item">${dateBadge}<span class="item-text">${escapeHtml(it.text)}</span><button onclick="removeItem('${key}','${it.id}')" aria-label="Remove">×</button></li>`;
+    return `<li class="item">${dateBadge}<span class="item-text">${escapeHtml(it.text)}</span><button onclick="removeItem('${key}','${it.id}')" aria-label="Remove">&#215;</button></li>`;
   }).join('');
 }
 
 function deadlineClass(iso){
   const today = new Date(); today.setHours(0,0,0,0);
-  const d = new Date(iso + 'T00:00:00');
+  const d = new Date(iso+'T00:00:00');
   const diff = Math.ceil((d - today) / 86400000);
   if(diff <= 1) return 'urgent';
   if(diff <= 7) return 'soon';
@@ -392,22 +374,21 @@ function renderArchive(){
   const items = state.archive;
   countEl.textContent = items.length + ' items dumped';
   if(items.length === 0){ stack.innerHTML = '<div class="empty-hint">Drawer is empty. Start dumping.</div>'; return; }
-  const recent = [...items].reverse().slice(0,50);
-  stack.innerHTML = recent.map(it =>
-    `<div class="archive-item"><span class="a-time">${it.time}</span><span class="a-text">${escapeHtml(it.text)}</span><button onclick="removeItem('archive','${it.id}')" aria-label="Remove">×</button></div>`
+  stack.innerHTML = [...items].reverse().slice(0,50).map(it =>
+    `<div class="archive-item"><span class="a-time">${it.time}</span><span class="a-text">${escapeHtml(it.text)}</span><button onclick="removeItem('archive','${it.id}')" aria-label="Remove">&#215;</button></div>`
   ).join('');
 }
 
 function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 
 function formatDate(iso){
-  const d = new Date(iso + 'T00:00:00');
+  const d = new Date(iso+'T00:00:00');
   if(isNaN(d)) return iso;
   return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
 
 // ── ACTIONS ───────────────────────────────────────────────────────────────────
-async function addItem(key){
+function addItem(key){
   const input = document.getElementById('input-'+key);
   const text = input.value.trim();
   if(!text) return;
@@ -417,7 +398,7 @@ async function addItem(key){
   scheduleSave();
 }
 
-async function addDeadline(){
+function addDeadline(){
   const input = document.getElementById('input-deadlines');
   const dateInput = document.getElementById('input-deadlines-date');
   const text = input.value.trim();
@@ -428,7 +409,7 @@ async function addDeadline(){
   scheduleSave();
 }
 
-async function dumpArchive(){
+function dumpArchive(){
   const ta = document.getElementById('input-archive');
   const text = ta.value.trim();
   if(!text) return;
@@ -441,7 +422,7 @@ async function dumpArchive(){
   scheduleSave();
 }
 
-async function removeItem(key, id){
+function removeItem(key, id){
   state[key] = state[key].filter(it => it.id !== id);
   if(key === 'archive') renderArchive(); else renderSection(key);
   scheduleSave();

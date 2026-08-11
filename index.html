@@ -1,1 +1,473 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>COMMAND CENTER</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"><style>:root{--bg:#0a0c0e;--panel:#131619;--panel-raised:#181c1f;--line:#262b2f;--line-bright:#3a4045;--text:#e7e9ea;--text-dim:#8b9296;--text-faint:#565c60;--amber:#ffb020;--amber-dim:#4d3a14;--cyan:#4fd1c5;--cyan-dim:#173430;--red:#ff5c5c;--red-dim:#3a1414;--mono:'JetBrains Mono', monospace;--sans:'IBM Plex Sans', sans-serif;}*{box-sizing:border-box;}html,body{margin:0;padding:0;}body{background:radial-gradient(ellipse 900px 500px at 15% -10%, rgba(255,176,32,0.06), transparent 60%),radial-gradient(ellipse 900px 500px at 90% 10%, rgba(79,209,197,0.05), transparent 60%),var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;padding:28px 20px 80px;}.wrap{max-width:1180px;margin:0 auto;}/* ---- HEADER ---- */.hud{display:flex; justify-content:space-between; align-items:baseline;font-family:var(--mono); font-size:11px; letter-spacing:0.12em;color:var(--text-faint); margin-bottom:18px; flex-wrap:wrap; gap:8px;}.hud .dot{color:var(--amber); animation:pulse 2s infinite;}@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}h1{font-family:var(--mono); font-weight:800; font-size:clamp(28px,5vw,44px);letter-spacing:0.02em; margin:0 0 4px; line-height:1;}.sub{color:var(--text-dim); font-size:14px; margin:0 0 22px; max-width:640px;}/* ---- THE RULE PLAQUE ---- */.rule-plaque{border:1px solid var(--line-bright);background:repeating-linear-gradient(135deg, var(--panel-raised), var(--panel-raised) 10px, #16191c 10px, #16191c 20px);padding:16px 20px; margin-bottom:26px; position:relative;border-left:3px solid var(--amber);}.rule-plaque .tag{font-family:var(--mono); font-size:10px; letter-spacing:0.15em; color:var(--amber);text-transform:uppercase; margin-bottom:6px; display:block;}.rule-plaque .rule-text{font-family:var(--mono); font-weight:700; font-size:clamp(15px,2.4vw,19px);color:var(--text); line-height:1.4;}.rule-plaque .rule-sub{color:var(--text-dim); font-size:13px; margin-top:8px; line-height:1.5;}/* ---- GRID ---- */.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;}.panel{background:var(--panel);border:1px solid var(--line);padding:16px 16px 14px;display:flex; flex-direction:column;min-height:0;}.panel-head{display:flex; align-items:center; justify-content:space-between;margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--line);}.panel-title{font-family:var(--mono); font-weight:700; font-size:12.5px;letter-spacing:0.14em; color:var(--text);}.panel-count{font-family:var(--mono); font-size:11px; color:var(--text-faint);background:var(--panel-raised); padding:2px 7px; border:1px solid var(--line);}.p-now{grid-column:span 5; border-left:2px solid var(--amber);}.p-now .panel-title{color:var(--amber);}.p-next{grid-column:span 4; border-left:2px solid var(--cyan);}.p-next .panel-title{color:var(--cyan);}.p-waiting{grid-column:span 3; border-left:2px solid var(--text-faint); border-style:dashed;}.p-projects{grid-column:span 5;}.p-deadlines{grid-column:span 4;}.p-learning{grid-column:span 3;}.p-archive{grid-column:span 12;}@media (max-width:880px){.p-now,.p-next,.p-waiting,.p-projects,.p-deadlines,.p-learning{grid-column:span 12;}}/* ---- LIST ITEMS ---- */.items{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; flex:1;}.item{display:flex; align-items:flex-start; gap:8px;background:var(--panel-raised); border:1px solid var(--line);padding:8px 9px; font-size:13.5px; line-height:1.4;}.item .item-text{flex:1; word-break:break-word;}.item .item-date{font-family:var(--mono); font-size:10.5px; color:var(--red);white-space:nowrap; margin-right:4px; padding-top:1px;}.item button{background:none; border:none; color:var(--text-faint); cursor:pointer;font-size:15px; line-height:1; padding:0 2px; flex-shrink:0;}.item button:hover{color:var(--red);}.empty-hint{color:var(--text-faint); font-size:12.5px; font-style:italic; padding:8px 2px;}.add-row{display:flex; gap:6px; margin-top:10px;}.add-row input[type=text]{flex:1; background:var(--panel-raised); border:1px solid var(--line);color:var(--text); font-family:var(--sans); font-size:13px; padding:8px 9px;outline:none;}.add-row input[type=text]:focus{border-color:var(--line-bright);}.add-row input[type=date]{background:var(--panel-raised); border:1px solid var(--line); color:var(--text-dim);font-family:var(--mono); font-size:12px; padding:7px 6px; outline:none;}.add-row button{font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:0.06em;background:var(--panel-raised); border:1px solid var(--line-bright); color:var(--text);padding:0 14px; cursor:pointer;}.add-row button:hover{background:var(--line-bright);}/* ---- ARCHIVE ---- */.archive-body{display:flex; gap:16px; flex-wrap:wrap;}.archive-dump{flex:1; min-width:280px; display:flex; flex-direction:column;}.archive-dump textarea{width:100%; min-height:90px; resize:vertical;background:#0e1113; border:1px dashed var(--line-bright); color:var(--text-dim);font-family:var(--sans); font-size:13px; padding:10px; outline:none; line-height:1.5;}.archive-dump textarea:focus{border-color:var(--text-faint); color:var(--text);}.archive-dump .dump-btn{margin-top:8px; align-self:flex-start;font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:0.08em;background:var(--amber-dim); border:1px solid var(--amber); color:var(--amber);padding:8px 16px; cursor:pointer;}.archive-dump .dump-btn:hover{background:var(--amber); color:#1a1400;}.archive-stack{flex:1; min-width:260px; max-height:260px; overflow-y:auto;display:flex; flex-direction:column; gap:5px;}.archive-item{background:var(--panel-raised); border:1px solid var(--line);padding:7px 9px; font-size:12.5px; color:var(--text-faint);display:flex; gap:8px; align-items:flex-start;}.archive-item .a-time{font-family:var(--mono); font-size:10px; color:var(--text-faint); white-space:nowrap; padding-top:1px;}.archive-item .a-text{flex:1; color:var(--text-dim); word-break:break-word;}.archive-item button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:14px;}.archive-item button:hover{color:var(--red);}.archive-note{font-family:var(--mono); font-size:11px; color:var(--text-faint);margin-top:10px; letter-spacing:0.02em;}footer{text-align:center; color:var(--text-faint); font-family:var(--mono);font-size:10.5px; letter-spacing:0.1em; margin-top:34px;}</style></head><body><div class="wrap"><div class="hud"><span><span class="dot">●</span> SYSTEM STATUS — <span id="hud-status">ONE TRUSTED ENTRY POINT</span></span><span id="hud-clock"></span></div><h1>COMMAND CENTER</h1><p class="sub">Not another place to organize everything. The one place you check to know what deserves your attention today.</p><div class="rule-plaque"><span class="tag">The brutal rule</span><div class="rule-text">If it's not in the Command Center, I don't need to remember it.</div><div class="rule-sub">500 bookmarks. 100 notes. 20 courses. Books, tools, PDFs, ideas. None of it needs organizing right now — it needs to leave your head. Dump it in ARCHIVE below. Don't read it. Don't categorize it. Don't decide if it matters. Just get it out.</div></div><div class="grid"><section class="panel p-now"><div class="panel-head"><span class="panel-title">01 · NOW</span><span class="panel-count" id="count-now">0</span></div><ul class="items" id="list-now"></ul><div class="add-row"><input type="text" id="input-now" placeholder="What are you doing right now?"><button onclick="addItem('now')">ADD</button></div></section><section class="panel p-next"><div class="panel-head"><span class="panel-title">02 · NEXT</span><span class="panel-count" id="count-next">0</span></div><ul class="items" id="list-next"></ul><div class="add-row"><input type="text" id="input-next" placeholder="What comes after?"><button onclick="addItem('next')">ADD</button></div></section><section class="panel p-waiting"><div class="panel-head"><span class="panel-title">06 · WAITING</span><span class="panel-count" id="count-waiting">0</span></div><ul class="items" id="list-waiting"></ul><div class="add-row"><input type="text" id="input-waiting" placeholder="Blocked on..."><button onclick="addItem('waiting')">ADD</button></div></section><section class="panel p-projects"><div class="panel-head"><span class="panel-title">03 · PROJECTS</span><span class="panel-count" id="count-projects">0</span></div><ul class="items" id="list-projects"></ul><div class="add-row"><input type="text" id="input-projects" placeholder="Active project (only if it's truly active)"><button onclick="addItem('projects')">ADD</button></div></section><section class="panel p-deadlines"><div class="panel-head"><span class="panel-title">04 · DEADLINES</span><span class="panel-count" id="count-deadlines">0</span></div><ul class="items" id="list-deadlines"></ul><div class="add-row"><input type="text" id="input-deadlines" placeholder="What's due"><input type="date" id="input-deadlines-date"><button onclick="addDeadline()">ADD</button></div></section><section class="panel p-learning"><div class="panel-head"><span class="panel-title">05 · LEARNING</span><span class="panel-count" id="count-learning">0</span></div><ul class="items" id="list-learning"></ul><div class="add-row"><input type="text" id="input-learning" placeholder="Course / book / tool"><button onclick="addItem('learning')">ADD</button></div></section><section class="panel p-archive"><div class="panel-head"><span class="panel-title">07 · ARCHIVE / INBOX</span><span class="panel-count" id="count-archive">0 items dumped</span></div><div class="archive-body"><div class="archive-dump"><textarea id="input-archive" placeholder="Paste it. A bookmark, a note, a book title, an idea, a whole list. Don't read it back. Don't sort it. Don't decide if it matters. Just get it out of your head and hit dump."></textarea><button class="dump-btn" onclick="dumpArchive()">DUMP IT</button></div><div class="archive-stack" id="list-archive"></div></div><div class="archive-note">// this is not a filing system. it is a drawer you close. nothing here needs your attention today.</div></section></div><footer>YOUR JOB IS NOT TO ORGANIZE YOUR KNOWLEDGE. YOUR JOB IS TO KNOW WHAT DESERVES YOUR ATTENTION TODAY.</footer></div><script>const SECTIONS = ['now','next','waiting','projects','deadlines','learning'];let state = {now:[],next:[],waiting:[],projects:[],deadlines:[],learning:[],archive:[]};function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }async function loadAll(){for(const key of [...SECTIONS,'archive']){try{const res = await window.storage.get('cc:'+key, false);state[key] = res && res.value ? JSON.parse(res.value) : [];}catch(e){state[key] = [];}}renderAll();}async function save(key){try{await window.storage.set('cc:'+key, JSON.stringify(state[key]), false);}catch(e){console.error('storage error', e);}}function renderAll(){SECTIONS.forEach(renderSection);renderArchive();}function renderSection(key){const ul = document.getElementById('list-'+key);const countEl = document.getElementById('count-'+key);const items = state[key];countEl.textContent = items.length;if(items.length === 0){ul.innerHTML = '<div class="empty-hint">Nothing here. That\'s fine.</div>';return;}let sorted = items;if(key === 'deadlines'){sorted = [...items].sort((a,b) => (a.date||'9999').localeCompare(b.date||'9999'));}ul.innerHTML = sorted.map(it => {const dateBadge = it.date ? `<span class="item-date">${formatDate(it.date)}</span>` : '';return `<li class="item">${dateBadge}<span class="item-text">${escapeHtml(it.text)}</span><button onclick="removeItem('${key}','${it.id}')" aria-label="Remove">×</button></li>`;}).join('');}function renderArchive(){const stack = document.getElementById('list-archive');const countEl = document.getElementById('count-archive');const items = state.archive;countEl.textContent = items.length + ' items dumped';if(items.length === 0){stack.innerHTML = '<div class="empty-hint">Drawer is empty. Start dumping.</div>';return;}const recent = [...items].reverse().slice(0,50);stack.innerHTML = recent.map(it => `<div class="archive-item"><span class="a-time">${it.time}</span><span class="a-text">${escapeHtml(it.text)}</span><button onclick="removeItem('archive','${it.id}')" aria-label="Remove">×</button></div>`).join('');}function escapeHtml(str){const d = document.createElement('div');d.textContent = str;return d.innerHTML;}function formatDate(iso){const d = new Date(iso + 'T00:00:00');if(isNaN(d)) return iso;return d.toLocaleDateString('en-US', {month:'short', day:'numeric'});}async function addItem(key){const input = document.getElementById('input-'+key);const text = input.value.trim();if(!text) return;state[key].push({id: uid(), text});input.value = '';renderSection(key);await save(key);}async function addDeadline(){const input = document.getElementById('input-deadlines');const dateInput = document.getElementById('input-deadlines-date');const text = input.value.trim();if(!text) return;state.deadlines.push({id: uid(), text, date: dateInput.value || null});input.value = '';dateInput.value = '';renderSection('deadlines');await save('deadlines');}async function dumpArchive(){const ta = document.getElementById('input-archive');const text = ta.value.trim();if(!text) return;const now = new Date();const time = now.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' + now.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});state.archive.push({id: uid(), text, time});ta.value = '';renderArchive();await save('archive');}async function removeItem(key, id){state[key] = state[key].filter(it => it.id !== id);if(key === 'archive') renderArchive(); else renderSection(key);await save(key);}// Enter-to-add for text inputsdocument.addEventListener('DOMContentLoaded', () => {SECTIONS.filter(k => k !== 'deadlines').forEach(key => {const input = document.getElementById('input-'+key);input.addEventListener('keydown', e => { if(e.key === 'Enter') addItem(key); });});document.getElementById('input-deadlines').addEventListener('keydown', e => { if(e.key === 'Enter') addDeadline(); });});function tickClock(){const el = document.getElementById('hud-clock');const now = new Date();el.textContent = now.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}) + ' — ' + now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});}tickClock();setInterval(tickClock, 30000);loadAll();</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMMAND CENTER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0c0e;--panel:#131619;--panel-raised:#181c1f;--line:#262b2f;
+  --line-bright:#3a4045;--text:#e7e9ea;--text-dim:#8b9296;--text-faint:#565c60;
+  --amber:#ffb020;--amber-dim:#4d3a14;--cyan:#4fd1c5;--cyan-dim:#173430;
+  --red:#ff5c5c;--red-dim:#3a1414;--green:#4caf7d;
+  --mono:'JetBrains Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:radial-gradient(ellipse 900px 500px at 15% -10%,rgba(255,176,32,.06),transparent 60%),
+             radial-gradient(ellipse 900px 500px at 90% 10%,rgba(79,209,197,.05),transparent 60%),
+             var(--bg);
+  color:var(--text);font-family:var(--sans);min-height:100vh;padding:28px 20px 80px;
+}
+.wrap{max-width:1180px;margin:0 auto;}
+
+/* TOKEN GATE */
+#token-gate{
+  position:fixed;inset:0;background:rgba(10,12,14,.97);
+  display:flex;align-items:center;justify-content:center;z-index:999;
+}
+.token-box{
+  border:1px solid var(--line-bright);background:var(--panel);padding:32px 36px;
+  max-width:480px;width:100%;
+}
+.token-box h2{font-family:var(--mono);font-weight:800;font-size:18px;margin:0 0 8px;color:var(--amber);}
+.token-box p{color:var(--text-dim);font-size:13px;line-height:1.6;margin:0 0 18px;}
+.token-box a{color:var(--cyan);text-decoration:none;}
+.token-box a:hover{text-decoration:underline;}
+.token-box input{
+  width:100%;background:var(--panel-raised);border:1px solid var(--line-bright);
+  color:var(--text);font-family:var(--mono);font-size:13px;padding:10px 12px;
+  outline:none;margin-bottom:10px;
+}
+.token-box input:focus{border-color:var(--amber);}
+.token-box button{
+  font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.08em;
+  background:var(--amber-dim);border:1px solid var(--amber);color:var(--amber);
+  padding:10px 22px;cursor:pointer;
+}
+.token-box button:hover{background:var(--amber);color:#1a1400;}
+.token-err{color:var(--red);font-family:var(--mono);font-size:11px;margin-top:8px;min-height:16px;}
+
+/* HUD */
+.hud{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  color:var(--text-faint);margin-bottom:18px;flex-wrap:wrap;gap:8px;
+}
+.hud .dot{color:var(--amber);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+.hud-sync{font-family:var(--mono);font-size:10px;letter-spacing:.08em;padding:2px 8px;border:1px solid var(--line);}
+.hud-sync.syncing{color:var(--amber);border-color:var(--amber-dim);}
+.hud-sync.saved{color:var(--green);border-color:#1a3d2b;}
+.hud-sync.error{color:var(--red);border-color:var(--red-dim);}
+
+h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter-spacing:.02em;margin:0 0 4px;line-height:1;}
+.sub{color:var(--text-dim);font-size:14px;margin:0 0 22px;max-width:640px;}
+</style>
+
+/* RULE PLAQUE */
+.rule-plaque{
+  border:1px solid var(--line-bright);
+  background:repeating-linear-gradient(135deg,var(--panel-raised),var(--panel-raised) 10px,#16191c 10px,#16191c 20px);
+  padding:16px 20px;margin-bottom:26px;border-left:3px solid var(--amber);
+}
+.rule-plaque .tag{font-family:var(--mono);font-size:10px;letter-spacing:.15em;color:var(--amber);text-transform:uppercase;margin-bottom:6px;display:block;}
+.rule-plaque .rule-text{font-family:var(--mono);font-weight:700;font-size:clamp(15px,2.4vw,19px);color:var(--text);line-height:1.4;}
+.rule-plaque .rule-sub{color:var(--text-dim);font-size:13px;margin-top:8px;line-height:1.5;}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;}
+.panel{background:var(--panel);border:1px solid var(--line);padding:16px 16px 14px;display:flex;flex-direction:column;min-height:0;}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line);}
+.panel-title{font-family:var(--mono);font-weight:700;font-size:12.5px;letter-spacing:.14em;color:var(--text);}
+.panel-count{font-family:var(--mono);font-size:11px;color:var(--text-faint);background:var(--panel-raised);padding:2px 7px;border:1px solid var(--line);}
+.p-now{grid-column:span 5;border-left:2px solid var(--amber);}
+.p-now .panel-title{color:var(--amber);}
+.p-next{grid-column:span 4;border-left:2px solid var(--cyan);}
+.p-next .panel-title{color:var(--cyan);}
+.p-waiting{grid-column:span 3;border-left:2px dashed var(--text-faint);}
+.p-projects{grid-column:span 5;}
+.p-deadlines{grid-column:span 4;}
+.p-learning{grid-column:span 3;}
+.p-archive{grid-column:span 12;}
+@media(max-width:880px){.p-now,.p-next,.p-waiting,.p-projects,.p-deadlines,.p-learning{grid-column:span 12;}}
+
+/* LIST ITEMS */
+.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;flex:1;}
+.item{display:flex;align-items:flex-start;gap:8px;background:var(--panel-raised);border:1px solid var(--line);padding:8px 9px;font-size:13.5px;line-height:1.4;}
+.item .item-text{flex:1;word-break:break-word;}
+.item .item-date{font-family:var(--mono);font-size:10.5px;color:var(--red);white-space:nowrap;margin-right:4px;padding-top:1px;}
+.item .item-date.urgent{color:var(--red);font-weight:700;}
+.item .item-date.soon{color:var(--amber);}
+.item .item-date.ok{color:var(--green);}
+.item button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:15px;line-height:1;padding:0 2px;flex-shrink:0;}
+.item button:hover{color:var(--red);}
+.empty-hint{color:var(--text-faint);font-size:12.5px;font-style:italic;padding:8px 2px;}
+
+/* ADD ROW */
+.add-row{display:flex;gap:6px;margin-top:10px;}
+.add-row input[type=text]{flex:1;background:var(--panel-raised);border:1px solid var(--line);color:var(--text);font-family:var(--sans);font-size:13px;padding:8px 9px;outline:none;}
+.add-row input[type=text]:focus{border-color:var(--line-bright);}
+.add-row input[type=date]{background:var(--panel-raised);border:1px solid var(--line);color:var(--text-dim);font-family:var(--mono);font-size:12px;padding:7px 6px;outline:none;}
+.add-row button{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.06em;background:var(--panel-raised);border:1px solid var(--line-bright);color:var(--text);padding:0 14px;cursor:pointer;}
+.add-row button:hover{background:var(--line-bright);}
+
+/* ARCHIVE */
+.archive-body{display:flex;gap:16px;flex-wrap:wrap;}
+.archive-dump{flex:1;min-width:280px;display:flex;flex-direction:column;}
+.archive-dump textarea{width:100%;min-height:90px;resize:vertical;background:#0e1113;border:1px dashed var(--line-bright);color:var(--text-dim);font-family:var(--sans);font-size:13px;padding:10px;outline:none;line-height:1.5;}
+.archive-dump textarea:focus{border-color:var(--text-faint);color:var(--text);}
+.archive-dump .dump-btn{margin-top:8px;align-self:flex-start;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.08em;background:var(--amber-dim);border:1px solid var(--amber);color:var(--amber);padding:8px 16px;cursor:pointer;}
+.archive-dump .dump-btn:hover{background:var(--amber);color:#1a1400;}
+.archive-stack{flex:1;min-width:260px;max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;}
+.archive-item{background:var(--panel-raised);border:1px solid var(--line);padding:7px 9px;font-size:12.5px;color:var(--text-faint);display:flex;gap:8px;align-items:flex-start;}
+.archive-item .a-time{font-family:var(--mono);font-size:10px;color:var(--text-faint);white-space:nowrap;padding-top:1px;}
+.archive-item .a-text{flex:1;color:var(--text-dim);word-break:break-word;}
+.archive-item button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:14px;}
+.archive-item button:hover{color:var(--red);}
+.archive-note{font-family:var(--mono);font-size:11px;color:var(--text-faint);margin-top:10px;letter-spacing:.02em;}
+
+/* RESET TOKEN */
+.reset-token-btn{
+  font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+  background:none;border:1px solid var(--line);color:var(--text-faint);
+  padding:2px 8px;cursor:pointer;margin-left:8px;
+}
+.reset-token-btn:hover{border-color:var(--red);color:var(--red);}
+
+footer{text-align:center;color:var(--text-faint);font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;margin-top:34px;}
+</style>
+</head>
+<body>
+
+<!-- TOKEN GATE -->
+<div id="token-gate" style="display:none;">
+  <div class="token-box">
+    <h2>CONNECT TO GITHUB</h2>
+    <p>
+      Your data is stored in <code style="color:var(--cyan)">data.json</code> in your GitHub repo.<br>
+      Paste a Personal Access Token with <strong>repo</strong> scope to enable saving.<br><br>
+      <a href="https://github.com/settings/tokens/new?scopes=repo&description=command-center" target="_blank">→ Generate a token on GitHub</a>
+    </p>
+    <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+    <br>
+    <button onclick="submitToken()">CONNECT</button>
+    <div class="token-err" id="token-err"></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="hud">
+    <span><span class="dot">●</span> SYSTEM STATUS — <span id="hud-status">ONE TRUSTED ENTRY POINT</span></span>
+    <span style="display:flex;align-items:center;gap:8px;">
+      <span class="hud-sync" id="hud-sync"></span>
+      <button class="reset-token-btn" onclick="resetToken()" title="Change GitHub token">TOKEN</button>
+      <span id="hud-clock"></span>
+    </span>
+  </div>
+
+  <h1>COMMAND CENTER</h1>
+  <p class="sub">Not another place to organize everything. The one place you check to know what deserves your attention today.</p>
+
+  <div class="rule-plaque">
+    <span class="tag">The brutal rule</span>
+    <div class="rule-text">If it's not in the Command Center, I don't need to remember it.</div>
+    <div class="rule-sub">500 bookmarks. 100 notes. 20 courses. Books, tools, PDFs, ideas. None of it needs organizing right now — it needs to leave your head. Dump it in ARCHIVE below. Don't read it. Don't categorize it. Don't decide if it matters. Just get it out.</div>
+  </div>
+
+  <div class="grid">
+    <section class="panel p-now">
+      <div class="panel-head"><span class="panel-title">01 · NOW</span><span class="panel-count" id="count-now">0</span></div>
+      <ul class="items" id="list-now"></ul>
+      <div class="add-row"><input type="text" id="input-now" placeholder="What are you doing right now?"><button onclick="addItem('now')">ADD</button></div>
+    </section>
+    <section class="panel p-next">
+      <div class="panel-head"><span class="panel-title">02 · NEXT</span><span class="panel-count" id="count-next">0</span></div>
+      <ul class="items" id="list-next"></ul>
+      <div class="add-row"><input type="text" id="input-next" placeholder="What comes after?"><button onclick="addItem('next')">ADD</button></div>
+    </section>
+    <section class="panel p-waiting">
+      <div class="panel-head"><span class="panel-title">06 · WAITING</span><span class="panel-count" id="count-waiting">0</span></div>
+      <ul class="items" id="list-waiting"></ul>
+      <div class="add-row"><input type="text" id="input-waiting" placeholder="Blocked on..."><button onclick="addItem('waiting')">ADD</button></div>
+    </section>
+    <section class="panel p-projects">
+      <div class="panel-head"><span class="panel-title">03 · PROJECTS</span><span class="panel-count" id="count-projects">0</span></div>
+      <ul class="items" id="list-projects"></ul>
+      <div class="add-row"><input type="text" id="input-projects" placeholder="Active project (only if it's truly active)"><button onclick="addItem('projects')">ADD</button></div>
+    </section>
+    <section class="panel p-deadlines">
+      <div class="panel-head"><span class="panel-title">04 · DEADLINES</span><span class="panel-count" id="count-deadlines">0</span></div>
+      <ul class="items" id="list-deadlines"></ul>
+      <div class="add-row">
+        <input type="text" id="input-deadlines" placeholder="What's due">
+        <input type="date" id="input-deadlines-date">
+        <button onclick="addDeadline()">ADD</button>
+      </div>
+    </section>
+    <section class="panel p-learning">
+      <div class="panel-head"><span class="panel-title">05 · LEARNING</span><span class="panel-count" id="count-learning">0</span></div>
+      <ul class="items" id="list-learning"></ul>
+      <div class="add-row"><input type="text" id="input-learning" placeholder="Course / book / tool"><button onclick="addItem('learning')">ADD</button></div>
+    </section>
+    <section class="panel p-archive">
+      <div class="panel-head"><span class="panel-title">07 · ARCHIVE / INBOX</span><span class="panel-count" id="count-archive">0 items dumped</span></div>
+      <div class="archive-body">
+        <div class="archive-dump">
+          <textarea id="input-archive" placeholder="Paste it. A bookmark, a note, a book title, an idea, a whole list. Don't read it back. Don't sort it. Don't decide if it matters. Just get it out of your head and hit dump."></textarea>
+          <button class="dump-btn" onclick="dumpArchive()">DUMP IT</button>
+        </div>
+        <div class="archive-stack" id="list-archive"></div>
+      </div>
+      <div class="archive-note">// this is not a filing system. it is a drawer you close. nothing here needs your attention today.</div>
+    </section>
+  </div>
+
+  <footer>YOUR JOB IS NOT TO ORGANIZE YOUR KNOWLEDGE. YOUR JOB IS TO KNOW WHAT DESERVES YOUR ATTENTION TODAY.</footer>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const GH_OWNER = 'jyotirajborah';
+const GH_REPO  = 'command-center';
+const GH_FILE  = 'data.json';
+const GH_API   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
+const TOKEN_KEY = 'cc:gh_token';
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const SECTIONS = ['now','next','waiting','projects','deadlines','learning'];
+let state = {now:[],next:[],waiting:[],projects:[],deadlines:[],learning:[],archive:[]};
+let fileSha = null;       // GitHub requires the current sha to update a file
+let saveTimer = null;     // debounce handle
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function getToken(){ return localStorage.getItem(TOKEN_KEY); }
+
+// ── SYNC STATUS ───────────────────────────────────────────────────────────────
+function setSyncStatus(status, text){
+  const el = document.getElementById('hud-sync');
+  el.className = 'hud-sync ' + status;
+  el.textContent = text;
+}
+
+// ── TOKEN GATE ────────────────────────────────────────────────────────────────
+function showTokenGate(){ document.getElementById('token-gate').style.display = 'flex'; }
+function hideTokenGate(){ document.getElementById('token-gate').style.display = 'none'; }
+
+async function submitToken(){
+  const input = document.getElementById('token-input');
+  const errEl = document.getElementById('token-err');
+  const token = input.value.trim();
+  if(!token){ errEl.textContent = 'Paste your token first.'; return; }
+  errEl.textContent = 'Verifying...';
+  // quick validation: hit the repo endpoint
+  const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}`, {
+    headers:{ Authorization: `Bearer ${token}` }
+  });
+  if(!res.ok){ errEl.textContent = 'Token invalid or no repo access. Try again.'; return; }
+  localStorage.setItem(TOKEN_KEY, token);
+  input.value = '';
+  errEl.textContent = '';
+  hideTokenGate();
+  await loadFromGitHub();
+}
+
+function resetToken(){
+  if(!confirm('Clear saved token? You\'ll need to paste it again.')) return;
+  localStorage.removeItem(TOKEN_KEY);
+  showTokenGate();
+}
+
+// ── GITHUB API ────────────────────────────────────────────────────────────────
+async function loadFromGitHub(){
+  const token = getToken();
+  if(!token){ showTokenGate(); return; }
+  setSyncStatus('syncing','LOADING...');
+  try {
+    const res = await fetch(GH_API, {
+      headers:{ Authorization: `Bearer ${token}`, Accept: 'application/vnd.github.v3+json' }
+    });
+    if(res.status === 404){
+      // File doesn't exist yet — start fresh, will create on first save
+      fileSha = null;
+      setSyncStatus('saved','READY');
+      renderAll();
+      return;
+    }
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    fileSha = json.sha;
+    const decoded = JSON.parse(atob(json.content.replace(/\n/g,'')));
+    // merge in case keys are missing
+    SECTIONS.forEach(k => { state[k] = decoded[k] || []; });
+    state.archive = decoded.archive || [];
+    setSyncStatus('saved','SYNCED');
+    renderAll();
+  } catch(e){
+    setSyncStatus('error','LOAD ERROR');
+    console.error(e);
+  }
+}
+
+async function saveToGitHub(){
+  const token = getToken();
+  if(!token){ showTokenGate(); return; }
+  setSyncStatus('syncing','SAVING...');
+  try {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(state, null, 2))));
+    const body = {
+      message: `update: ${new Date().toISOString()}`,
+      content,
+      ...(fileSha ? { sha: fileSha } : {})
+    };
+    const res = await fetch(GH_API, {
+      method: 'PUT',
+      headers:{
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    if(!res.ok){
+      const err = await res.json();
+      throw new Error(err.message || 'HTTP ' + res.status);
+    }
+    const json = await res.json();
+    fileSha = json.content.sha;
+    setSyncStatus('saved','SAVED ✓');
+  } catch(e){
+    setSyncStatus('error','SAVE ERROR');
+    console.error(e);
+  }
+}
+
+// Debounce saves — wait 800ms after last change before hitting GitHub
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  setSyncStatus('syncing','...');
+  saveTimer = setTimeout(() => saveToGitHub(), 800);
+}
+</script>
+
+<script>
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderAll(){ SECTIONS.forEach(renderSection); renderArchive(); }
+
+function renderSection(key){
+  const ul = document.getElementById('list-'+key);
+  const countEl = document.getElementById('count-'+key);
+  const items = state[key];
+  countEl.textContent = items.length;
+  if(items.length === 0){ ul.innerHTML = '<div class="empty-hint">Nothing here. That\'s fine.</div>'; return; }
+  let sorted = items;
+  if(key === 'deadlines'){
+    sorted = [...items].sort((a,b) => (a.date||'9999').localeCompare(b.date||'9999'));
+  }
+  ul.innerHTML = sorted.map(it => {
+    let dateBadge = '';
+    if(it.date){
+      const cls = deadlineClass(it.date);
+      dateBadge = `<span class="item-date ${cls}">${formatDate(it.date)}</span>`;
+    }
+    return `<li class="item">${dateBadge}<span class="item-text">${escapeHtml(it.text)}</span><button onclick="removeItem('${key}','${it.id}')" aria-label="Remove">×</button></li>`;
+  }).join('');
+}
+
+function deadlineClass(iso){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(iso + 'T00:00:00');
+  const diff = Math.ceil((d - today) / 86400000);
+  if(diff <= 1) return 'urgent';
+  if(diff <= 7) return 'soon';
+  return 'ok';
+}
+
+function renderArchive(){
+  const stack = document.getElementById('list-archive');
+  const countEl = document.getElementById('count-archive');
+  const items = state.archive;
+  countEl.textContent = items.length + ' items dumped';
+  if(items.length === 0){ stack.innerHTML = '<div class="empty-hint">Drawer is empty. Start dumping.</div>'; return; }
+  const recent = [...items].reverse().slice(0,50);
+  stack.innerHTML = recent.map(it =>
+    `<div class="archive-item"><span class="a-time">${it.time}</span><span class="a-text">${escapeHtml(it.text)}</span><button onclick="removeItem('archive','${it.id}')" aria-label="Remove">×</button></div>`
+  ).join('');
+}
+
+function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+function formatDate(iso){
+  const d = new Date(iso + 'T00:00:00');
+  if(isNaN(d)) return iso;
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+async function addItem(key){
+  const input = document.getElementById('input-'+key);
+  const text = input.value.trim();
+  if(!text) return;
+  state[key].push({id:uid(), text});
+  input.value = '';
+  renderSection(key);
+  scheduleSave();
+}
+
+async function addDeadline(){
+  const input = document.getElementById('input-deadlines');
+  const dateInput = document.getElementById('input-deadlines-date');
+  const text = input.value.trim();
+  if(!text) return;
+  state.deadlines.push({id:uid(), text, date: dateInput.value || null});
+  input.value = ''; dateInput.value = '';
+  renderSection('deadlines');
+  scheduleSave();
+}
+
+async function dumpArchive(){
+  const ta = document.getElementById('input-archive');
+  const text = ta.value.trim();
+  if(!text) return;
+  const now = new Date();
+  const time = now.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' +
+               now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  state.archive.push({id:uid(), text, time});
+  ta.value = '';
+  renderArchive();
+  scheduleSave();
+}
+
+async function removeItem(key, id){
+  state[key] = state[key].filter(it => it.id !== id);
+  if(key === 'archive') renderArchive(); else renderSection(key);
+  scheduleSave();
+}
+
+// ── KEYBOARD ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  SECTIONS.filter(k => k !== 'deadlines').forEach(key => {
+    document.getElementById('input-'+key).addEventListener('keydown', e => { if(e.key==='Enter') addItem(key); });
+  });
+  document.getElementById('input-deadlines').addEventListener('keydown', e => { if(e.key==='Enter') addDeadline(); });
+  document.getElementById('token-input').addEventListener('keydown', e => { if(e.key==='Enter') submitToken(); });
+});
+
+// ── CLOCK ─────────────────────────────────────────────────────────────────────
+function tickClock(){
+  const el = document.getElementById('hud-clock');
+  const now = new Date();
+  el.textContent = now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}) +
+                   ' — ' + now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+tickClock();
+setInterval(tickClock, 30000);
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+loadFromGitHub();
+</script>
+</body>
+</html>

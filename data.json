@@ -4,16 +4,16 @@
   "waiting": [],
   "projects": [
     {
+      "id": "mspvqfv0hzlc8",
+      "text": "Courses"
+    },
+    {
       "id": "mspvq3c49j733",
       "text": "Digital product"
     },
     {
       "id": "mspvpx3ujn6bi",
       "text": "Email marketing"
-    },
-    {
-      "id": "mspvqfv0hzlc8",
-      "text": "Courses"
     }
   ],
   "deadlines": [],

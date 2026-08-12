@@ -25,38 +25,20 @@ body{
 .wrap{max-width:1180px;margin:0 auto;}
 
 /* TOKEN GATE */
-#token-gate{
-  position:fixed;inset:0;background:rgba(10,12,14,.97);
-  display:flex;align-items:center;justify-content:center;z-index:999;
-}
-.token-box{
-  border:1px solid var(--line-bright);background:var(--panel);padding:32px 36px;
-  max-width:480px;width:100%;
-}
+#token-gate{position:fixed;inset:0;background:rgba(10,12,14,.97);display:flex;align-items:center;justify-content:center;z-index:999;}
+.token-box{border:1px solid var(--line-bright);background:var(--panel);padding:32px 36px;max-width:480px;width:100%;}
 .token-box h2{font-family:var(--mono);font-weight:800;font-size:18px;margin:0 0 8px;color:var(--amber);}
 .token-box p{color:var(--text-dim);font-size:13px;line-height:1.6;margin:0 0 18px;}
 .token-box a{color:var(--cyan);text-decoration:none;}
 .token-box a:hover{text-decoration:underline;}
-.token-box input{
-  width:100%;background:var(--panel-raised);border:1px solid var(--line-bright);
-  color:var(--text);font-family:var(--mono);font-size:13px;padding:10px 12px;
-  outline:none;margin-bottom:10px;
-}
+.token-box input{width:100%;background:var(--panel-raised);border:1px solid var(--line-bright);color:var(--text);font-family:var(--mono);font-size:13px;padding:10px 12px;outline:none;margin-bottom:10px;}
 .token-box input:focus{border-color:var(--amber);}
-.token-box button{
-  font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.08em;
-  background:var(--amber-dim);border:1px solid var(--amber);color:var(--amber);
-  padding:10px 22px;cursor:pointer;
-}
+.token-box button{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.08em;background:var(--amber-dim);border:1px solid var(--amber);color:var(--amber);padding:10px 22px;cursor:pointer;}
 .token-box button:hover{background:var(--amber);color:#1a1400;}
 .token-err{color:var(--red);font-family:var(--mono);font-size:11px;margin-top:8px;min-height:16px;}
 
 /* HUD */
-.hud{
-  display:flex;justify-content:space-between;align-items:baseline;
-  font-family:var(--mono);font-size:11px;letter-spacing:.12em;
-  color:var(--text-faint);margin-bottom:18px;flex-wrap:wrap;gap:8px;
-}
+.hud{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--text-faint);margin-bottom:18px;flex-wrap:wrap;gap:8px;}
 .hud .dot{color:var(--amber);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
 .hud-right{display:flex;align-items:center;gap:8px;}
@@ -64,22 +46,14 @@ body{
 .hud-sync.syncing{color:var(--amber);border-color:var(--amber-dim);}
 .hud-sync.saved{color:var(--green);border-color:#1a3d2b;}
 .hud-sync.error{color:var(--red);border-color:var(--red-dim);}
-.reset-token-btn{
-  font-family:var(--mono);font-size:10px;letter-spacing:.08em;
-  background:none;border:1px solid var(--line);color:var(--text-faint);
-  padding:2px 8px;cursor:pointer;
-}
+.reset-token-btn{font-family:var(--mono);font-size:10px;letter-spacing:.08em;background:none;border:1px solid var(--line);color:var(--text-faint);padding:2px 8px;cursor:pointer;}
 .reset-token-btn:hover{border-color:var(--red);color:var(--red);}
 
 h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter-spacing:.02em;margin:0 0 4px;line-height:1;}
 .sub{color:var(--text-dim);font-size:14px;margin:0 0 22px;max-width:640px;}
 
 /* RULE PLAQUE */
-.rule-plaque{
-  border:1px solid var(--line-bright);
-  background:repeating-linear-gradient(135deg,var(--panel-raised),var(--panel-raised) 10px,#16191c 10px,#16191c 20px);
-  padding:16px 20px;margin-bottom:26px;border-left:3px solid var(--amber);
-}
+.rule-plaque{border:1px solid var(--line-bright);background:repeating-linear-gradient(135deg,var(--panel-raised),var(--panel-raised) 10px,#16191c 10px,#16191c 20px);padding:16px 20px;margin-bottom:26px;border-left:3px solid var(--amber);}
 .rule-plaque .tag{font-family:var(--mono);font-size:10px;letter-spacing:.15em;color:var(--amber);text-transform:uppercase;margin-bottom:6px;display:block;}
 .rule-plaque .rule-text{font-family:var(--mono);font-weight:700;font-size:clamp(15px,2.4vw,19px);color:var(--text);line-height:1.4;}
 .rule-plaque .rule-sub{color:var(--text-dim);font-size:13px;margin-top:8px;line-height:1.5;}
@@ -103,14 +77,40 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 
 /* LIST ITEMS */
 .items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;flex:1;}
-.item{display:flex;align-items:flex-start;gap:8px;background:var(--panel-raised);border:1px solid var(--line);padding:8px 9px;font-size:13.5px;line-height:1.4;}
-.item .item-text{flex:1;word-break:break-word;}
-.item .item-date{font-family:var(--mono);font-size:10.5px;white-space:nowrap;margin-right:4px;padding-top:1px;}
-.item .item-date.urgent{color:var(--red);font-weight:700;}
-.item .item-date.soon{color:var(--amber);}
-.item .item-date.ok{color:var(--green);}
-.item button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:15px;line-height:1;padding:0 2px;flex-shrink:0;}
-.item button:hover{color:var(--red);}
+.item{display:flex;align-items:center;gap:6px;background:var(--panel-raised);border:1px solid var(--line);padding:7px 9px;font-size:13.5px;line-height:1.4;transition:border-color .15s;}
+.item.drag-over{border-color:var(--amber);}
+.item.dragging{opacity:.35;}
+
+/* drag handle */
+.drag-handle{color:var(--text-faint);cursor:grab;font-size:12px;flex-shrink:0;user-select:none;padding:0 2px;opacity:.5;}
+.drag-handle:hover{opacity:1;}
+.drag-handle:active{cursor:grabbing;}
+
+/* date badge */
+.item-date{font-family:var(--mono);font-size:10.5px;white-space:nowrap;flex-shrink:0;}
+.item-date.urgent{color:var(--red);font-weight:700;}
+.item-date.soon{color:var(--amber);}
+.item-date.ok{color:var(--green);}
+
+/* text / edit */
+.item-text{flex:1;word-break:break-word;cursor:pointer;}
+.item-text:hover{color:var(--amber);}
+.item-edit{flex:1;background:transparent;border:none;border-bottom:1px solid var(--amber);color:var(--text);font-family:var(--sans);font-size:13.5px;line-height:1.4;outline:none;padding:0;min-width:0;}
+
+/* action buttons */
+.item-actions{display:flex;align-items:center;gap:1px;flex-shrink:0;}
+.item-actions button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:13px;line-height:1;padding:2px 4px;}
+.item-actions .btn-move:hover{color:var(--cyan);}
+.item-actions .btn-delete:hover{color:var(--red);}
+
+/* MOVE DROPDOWN */
+.move-wrap{position:relative;}
+.move-menu{position:absolute;top:100%;right:0;z-index:200;background:var(--panel);border:1px solid var(--line-bright);display:none;flex-direction:column;min-width:130px;box-shadow:0 6px 20px rgba(0,0,0,.6);}
+.move-menu.open{display:flex;}
+.move-menu button{font-family:var(--mono);font-size:11px;letter-spacing:.05em;background:none;border:none;border-bottom:1px solid var(--line);color:var(--text-dim);padding:8px 12px;text-align:left;cursor:pointer;white-space:nowrap;}
+.move-menu button:last-child{border-bottom:none;}
+.move-menu button:hover{background:var(--line);color:var(--text);}
+
 .empty-hint{color:var(--text-faint);font-size:12.5px;font-style:italic;padding:8px 2px;}
 
 /* ADD ROW */
@@ -235,11 +235,16 @@ const GH_FILE  = 'data.json';
 const GH_API   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
 const TOKEN_KEY = 'cc:gh_token';
 
-// ── STATE ─────────────────────────────────────────────────────────────────────
+const SECTION_LABELS = {
+  now:'01 · NOW', next:'02 · NEXT', waiting:'06 · WAITING',
+  projects:'03 · PROJECTS', deadlines:'04 · DEADLINES', learning:'05 · LEARNING'
+};
 const SECTIONS = ['now','next','waiting','projects','deadlines','learning'];
+
 let state = {now:[],next:[],waiting:[],projects:[],deadlines:[],learning:[],archive:[]};
-let fileSha  = null;
+let fileSha   = null;
 let saveTimer = null;
+let dragSrc   = null;  // {key, id}
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 function getToken(){ return localStorage.getItem(TOKEN_KEY); }
@@ -262,12 +267,11 @@ async function submitToken(){
   if(!token){ errEl.textContent = 'Paste your token first.'; return; }
   errEl.textContent = 'Verifying...';
   const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}`, {
-    headers:{ Authorization: `Bearer ${token}` }
+    headers:{ Authorization:`Bearer ${token}` }
   });
   if(!res.ok){ errEl.textContent = 'Token invalid or no repo access. Try again.'; return; }
   localStorage.setItem(TOKEN_KEY, token);
-  input.value = '';
-  errEl.textContent = '';
+  input.value = ''; errEl.textContent = '';
   hideTokenGate();
   await loadFromGitHub();
 }
@@ -287,13 +291,8 @@ async function loadFromGitHub(){
     const res = await fetch(GH_API, {
       headers:{ Authorization:`Bearer ${token}`, Accept:'application/vnd.github.v3+json' }
     });
-    if(res.status === 404){
-      fileSha = null;
-      setSyncStatus('saved','READY');
-      renderAll();
-      return;
-    }
-    if(!res.ok) throw new Error('HTTP ' + res.status);
+    if(res.status === 404){ fileSha=null; setSyncStatus('saved','READY'); renderAll(); return; }
+    if(!res.ok) throw new Error('HTTP '+res.status);
     const json = await res.json();
     fileSha = json.sha;
     const decoded = JSON.parse(atob(json.content.replace(/\n/g,'')));
@@ -301,10 +300,7 @@ async function loadFromGitHub(){
     state.archive = decoded.archive || [];
     setSyncStatus('saved','SYNCED');
     renderAll();
-  } catch(e){
-    setSyncStatus('error','LOAD ERROR');
-    console.error(e);
-  }
+  } catch(e){ setSyncStatus('error','LOAD ERROR'); console.error(e); }
 }
 
 async function saveToGitHub(){
@@ -312,31 +308,24 @@ async function saveToGitHub(){
   if(!token){ showTokenGate(); return; }
   setSyncStatus('syncing','SAVING...');
   try {
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(state, null, 2))));
-    const body = { message:`update: ${new Date().toISOString()}`, content, ...(fileSha ? {sha:fileSha} : {}) };
-    const res = await fetch(GH_API, {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(state,null,2))));
+    const body = { message:`update: ${new Date().toISOString()}`, content, ...(fileSha?{sha:fileSha}:{}) };
+    const res = await fetch(GH_API,{
       method:'PUT',
-      headers:{
-        Authorization:`Bearer ${token}`,
-        Accept:'application/vnd.github.v3+json',
-        'Content-Type':'application/json'
-      },
-      body: JSON.stringify(body)
+      headers:{ Authorization:`Bearer ${token}`, Accept:'application/vnd.github.v3+json', 'Content-Type':'application/json' },
+      body:JSON.stringify(body)
     });
-    if(!res.ok){ const err = await res.json(); throw new Error(err.message||'HTTP '+res.status); }
+    if(!res.ok){ const err=await res.json(); throw new Error(err.message||'HTTP '+res.status); }
     const json = await res.json();
     fileSha = json.content.sha;
     setSyncStatus('saved','SAVED ✓');
-  } catch(e){
-    setSyncStatus('error','SAVE ERROR');
-    console.error(e);
-  }
+  } catch(e){ setSyncStatus('error','SAVE ERROR'); console.error(e); }
 }
 
 function scheduleSave(){
   clearTimeout(saveTimer);
   setSyncStatus('syncing','...');
-  saveTimer = setTimeout(() => saveToGitHub(), 800);
+  saveTimer = setTimeout(()=>saveToGitHub(), 800);
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
@@ -348,41 +337,146 @@ function renderSection(key){
   const items = state[key];
   countEl.textContent = items.length;
   if(items.length === 0){ ul.innerHTML = '<div class="empty-hint">Nothing here. That\'s fine.</div>'; return; }
-  let sorted = key === 'deadlines' ? [...items].sort((a,b) => (a.date||'9999').localeCompare(b.date||'9999')) : items;
-  ul.innerHTML = sorted.map(it => {
+  const sorted = key==='deadlines' ? [...items].sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999')) : items;
+
+  ul.innerHTML = '';
+  sorted.forEach(it => {
+    const li = document.createElement('li');
+    li.className = 'item';
+    li.draggable = true;
+    li.dataset.id = it.id;
+    li.dataset.key = key;
+
+    // build date badge
     let dateBadge = '';
     if(it.date){
       const cls = deadlineClass(it.date);
       dateBadge = `<span class="item-date ${cls}">${formatDate(it.date)}</span>`;
     }
-    return `<li class="item">${dateBadge}<span class="item-text">${escapeHtml(it.text)}</span><button onclick="removeItem('${key}','${it.id}')" aria-label="Remove">&#215;</button></li>`;
-  }).join('');
+
+    // other sections for move menu (exclude current)
+    const moveOpts = SECTIONS.filter(s=>s!==key)
+      .map(s=>`<button onclick="moveItem('${key}','${it.id}','${s}')">${escapeHtml(SECTION_LABELS[s])}</button>`)
+      .join('');
+
+    li.innerHTML = `
+      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      ${dateBadge}
+      <span class="item-text" onclick="startEdit(this,'${key}','${it.id}')">${escapeHtml(it.text)}</span>
+      <span class="item-actions">
+        <span class="move-wrap">
+          <button class="btn-move" onclick="toggleMoveMenu(this)" title="Move to...">⇄</button>
+          <span class="move-menu">${moveOpts}</span>
+        </span>
+        <button class="btn-delete" onclick="removeItem('${key}','${it.id}')" title="Remove">&#215;</button>
+      </span>`;
+
+    // drag events
+    li.addEventListener('dragstart', e => {
+      dragSrc = {key, id:it.id};
+      li.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    li.addEventListener('dragend', () => li.classList.remove('dragging'));
+    li.addEventListener('dragover', e => { e.preventDefault(); li.classList.add('drag-over'); });
+    li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+    li.addEventListener('drop', e => {
+      e.preventDefault();
+      li.classList.remove('drag-over');
+      if(!dragSrc || dragSrc.key !== key || dragSrc.id === it.id) return;
+      const arr = state[key];
+      const fromIdx = arr.findIndex(x=>x.id===dragSrc.id);
+      const toIdx   = arr.findIndex(x=>x.id===it.id);
+      if(fromIdx===-1||toIdx===-1) return;
+      arr.splice(toIdx, 0, arr.splice(fromIdx,1)[0]);
+      renderSection(key);
+      scheduleSave();
+    });
+
+    ul.appendChild(li);
+  });
 }
 
+// ── INLINE EDIT ───────────────────────────────────────────────────────────────
+function startEdit(span, key, id){
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'item-edit';
+  input.value = span.textContent;
+  span.replaceWith(input);
+  input.focus();
+  input.select();
+
+  function commit(){
+    const val = input.value.trim();
+    if(val){
+      const item = state[key].find(x=>x.id===id);
+      if(item){ item.text = val; scheduleSave(); }
+    }
+    renderSection(key);
+  }
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', e => {
+    if(e.key==='Enter'){ e.preventDefault(); input.blur(); }
+    if(e.key==='Escape'){ input.removeEventListener('blur',commit); renderSection(key); }
+  });
+}
+
+// ── MOVE BETWEEN PANELS ───────────────────────────────────────────────────────
+function moveItem(fromKey, id, toKey){
+  const idx = state[fromKey].findIndex(x=>x.id===id);
+  if(idx===-1) return;
+  const [item] = state[fromKey].splice(idx,1);
+  // deadlines panel needs a date field; others don't care about extra fields
+  state[toKey].push(item);
+  renderSection(fromKey);
+  renderSection(toKey);
+  scheduleSave();
+  closeAllMoveMenus();
+}
+
+function toggleMoveMenu(btn){
+  const menu = btn.nextElementSibling;
+  const isOpen = menu.classList.contains('open');
+  closeAllMoveMenus();
+  if(!isOpen) menu.classList.add('open');
+}
+
+function closeAllMoveMenus(){
+  document.querySelectorAll('.move-menu.open').forEach(m=>m.classList.remove('open'));
+}
+
+// close menus when clicking outside
+document.addEventListener('click', e => {
+  if(!e.target.closest('.move-wrap')) closeAllMoveMenus();
+});
+
+// ── DEADLINE CLASS ────────────────────────────────────────────────────────────
 function deadlineClass(iso){
   const today = new Date(); today.setHours(0,0,0,0);
   const d = new Date(iso+'T00:00:00');
-  const diff = Math.ceil((d - today) / 86400000);
-  if(diff <= 1) return 'urgent';
-  if(diff <= 7) return 'soon';
+  const diff = Math.ceil((d-today)/86400000);
+  if(diff<=1) return 'urgent';
+  if(diff<=7) return 'soon';
   return 'ok';
 }
 
+// ── ARCHIVE ───────────────────────────────────────────────────────────────────
 function renderArchive(){
   const stack = document.getElementById('list-archive');
   const countEl = document.getElementById('count-archive');
   const items = state.archive;
   countEl.textContent = items.length + ' items dumped';
-  if(items.length === 0){ stack.innerHTML = '<div class="empty-hint">Drawer is empty. Start dumping.</div>'; return; }
-  stack.innerHTML = [...items].reverse().slice(0,50).map(it =>
-    `<div class="archive-item"><span class="a-time">${it.time}</span><span class="a-text">${escapeHtml(it.text)}</span><button onclick="removeItem('archive','${it.id}')" aria-label="Remove">&#215;</button></div>`
+  if(items.length===0){ stack.innerHTML='<div class="empty-hint">Drawer is empty. Start dumping.</div>'; return; }
+  stack.innerHTML = [...items].reverse().slice(0,50).map(it=>
+    `<div class="archive-item"><span class="a-time">${it.time}</span><span class="a-text">${escapeHtml(it.text)}</span><button onclick="removeItem('archive','${it.id}')" title="Remove">&#215;</button></div>`
   ).join('');
 }
 
-function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
-
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
 function formatDate(iso){
-  const d = new Date(iso+'T00:00:00');
+  const d=new Date(iso+'T00:00:00');
   if(isNaN(d)) return iso;
   return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
@@ -403,8 +497,8 @@ function addDeadline(){
   const dateInput = document.getElementById('input-deadlines-date');
   const text = input.value.trim();
   if(!text) return;
-  state.deadlines.push({id:uid(), text, date: dateInput.value || null});
-  input.value = ''; dateInput.value = '';
+  state.deadlines.push({id:uid(), text, date:dateInput.value||null});
+  input.value=''; dateInput.value='';
   renderSection('deadlines');
   scheduleSave();
 }
@@ -414,35 +508,35 @@ function dumpArchive(){
   const text = ta.value.trim();
   if(!text) return;
   const now = new Date();
-  const time = now.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' +
+  const time = now.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+
                now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   state.archive.push({id:uid(), text, time});
-  ta.value = '';
+  ta.value='';
   renderArchive();
   scheduleSave();
 }
 
 function removeItem(key, id){
-  state[key] = state[key].filter(it => it.id !== id);
-  if(key === 'archive') renderArchive(); else renderSection(key);
+  state[key] = state[key].filter(x=>x.id!==id);
+  if(key==='archive') renderArchive(); else renderSection(key);
   scheduleSave();
 }
 
 // ── KEYBOARD ──────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  SECTIONS.filter(k => k !== 'deadlines').forEach(key => {
-    document.getElementById('input-'+key).addEventListener('keydown', e => { if(e.key==='Enter') addItem(key); });
+document.addEventListener('DOMContentLoaded', ()=>{
+  SECTIONS.filter(k=>k!=='deadlines').forEach(key=>{
+    document.getElementById('input-'+key).addEventListener('keydown', e=>{ if(e.key==='Enter') addItem(key); });
   });
-  document.getElementById('input-deadlines').addEventListener('keydown', e => { if(e.key==='Enter') addDeadline(); });
-  document.getElementById('token-input').addEventListener('keydown', e => { if(e.key==='Enter') submitToken(); });
+  document.getElementById('input-deadlines').addEventListener('keydown', e=>{ if(e.key==='Enter') addDeadline(); });
+  document.getElementById('token-input').addEventListener('keydown', e=>{ if(e.key==='Enter') submitToken(); });
 });
 
 // ── CLOCK ─────────────────────────────────────────────────────────────────────
 function tickClock(){
   const el = document.getElementById('hud-clock');
   const now = new Date();
-  el.textContent = now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}) +
-                   ' — ' + now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  el.textContent = now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+
+                   ' — '+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
 }
 tickClock();
 setInterval(tickClock, 30000);

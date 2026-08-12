@@ -1,6 +1,11 @@
 {
   "now": [],
-  "next": [],
+  "next": [
+    {
+      "id": "mspvqfv0hzlc8",
+      "text": "Courses"
+    }
+  ],
   "waiting": [],
   "projects": [
     {
@@ -10,10 +15,6 @@
     {
       "id": "mspvpx3ujn6bi",
       "text": "Email marketing"
-    },
-    {
-      "id": "mspvqfv0hzlc8",
-      "text": "Courses"
     }
   ],
   "deadlines": [],

@@ -2,7 +2,12 @@
   "now": [],
   "next": [],
   "waiting": [],
-  "projects": [],
+  "projects": [
+    {
+      "id": "mspvpx3ujn6bi",
+      "text": "Email marketing"
+    }
+  ],
   "deadlines": [],
   "learning": [],
   "archive": []

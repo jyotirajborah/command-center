@@ -25,7 +25,13 @@
       "text": "Wix maa baba websites"
     }
   ],
-  "deadlines": [],
+  "deadlines": [
+    {
+      "id": "mssj73xfhqh1m",
+      "text": "SEO",
+      "date": "2026-10-31"
+    }
+  ],
   "learning": [],
   "archive": []
 }

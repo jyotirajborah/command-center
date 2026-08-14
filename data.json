@@ -6,7 +6,12 @@
     }
   ],
   "next": [],
-  "waiting": [],
+  "waiting": [
+    {
+      "id": "mssj89jnlhvm9",
+      "text": "Upanishad Graphics"
+    }
+  ],
   "projects": [
     {
       "id": "mspvqfv0hzlc8",

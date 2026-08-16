@@ -55,5 +55,11 @@
       "text": "AI Adv Training"
     }
   ],
-  "archive": []
+  "archive": [
+    {
+      "id": "msvr2jwm7hgs0",
+      "text": "Progress bar, gan char with mikestones to hit and dependencies (i am otherwise failing at simultaneous execution)",
+      "time": "Aug 16 5:27 PM"
+    }
+  ]
 }

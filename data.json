@@ -14,6 +14,10 @@
   ],
   "projects": [
     {
+      "id": "msx2mqihxe6hl",
+      "text": "reels"
+    },
+    {
       "id": "mspxfs25bmrvk",
       "text": "Wix maa baba websites"
     },
@@ -48,10 +52,6 @@
     {
       "id": "mspvq3c49j733",
       "text": "Digital product"
-    },
-    {
-      "id": "msx2mqihxe6hl",
-      "text": "reels"
     }
   ],
   "deadlines": [

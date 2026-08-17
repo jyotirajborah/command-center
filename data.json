@@ -14,10 +14,6 @@
   ],
   "projects": [
     {
-      "id": "mspvqfv0hzlc8",
-      "text": "Courses"
-    },
-    {
       "id": "mspvpx3ujn6bi",
       "text": "Email marketing"
     },
@@ -36,6 +32,10 @@
     {
       "id": "msty2i5puqjf9",
       "text": "PEW conduct"
+    },
+    {
+      "id": "mspvqfv0hzlc8",
+      "text": "Courses"
     },
     {
       "id": "mspvq3c49j733",

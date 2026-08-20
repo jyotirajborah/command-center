@@ -94,7 +94,7 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 /* waiting item with informed tracking */
 .item-waiting{flex-direction:column;align-items:stretch;gap:6px;}
 .item-waiting .waiting-main{display:flex;align-items:center;gap:6px;width:100%;}
-.item-waiting .waiting-track{display:flex;gap:10px;align-items:center;padding:4px 0 0 28px;font-size:11px;color:var(--text-dim);}
+.item-waiting .waiting-track{display:flex;gap:10px;align-items:center;padding:4px 0 0 28px;font-size:11px;color:var(--text-dim);flex-wrap:wrap;}
 .waiting-check{display:flex;align-items:center;gap:4px;cursor:pointer;user-select:none;}
 .waiting-check input[type=checkbox]{cursor:pointer;accent-color:var(--cyan);}
 .waiting-check label{cursor:pointer;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--text-faint);}
@@ -102,6 +102,11 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .waiting-count button{background:none;border:1px solid var(--line);color:var(--text-faint);font-size:11px;line-height:1;padding:2px 5px;cursor:pointer;font-weight:700;}
 .waiting-count button:hover{border-color:var(--cyan);color:var(--cyan);}
 .waiting-count span{font-family:var(--mono);font-size:11px;min-width:16px;text-align:center;color:var(--text);}
+.waiting-mode{display:flex;align-items:center;gap:4px;}
+.waiting-mode-label{font-family:var(--mono);font-size:10px;color:var(--text-faint);}
+.waiting-mode-value{font-family:var(--mono);font-size:11px;color:var(--text);cursor:pointer;padding:1px 6px;border:1px solid var(--line);background:var(--panel-raised);}
+.waiting-mode-value:hover{border-color:var(--cyan);color:var(--cyan);}
+.waiting-mode-edit{background:var(--panel-raised);border:1px solid var(--cyan);color:var(--text);font-family:var(--mono);font-size:11px;padding:1px 6px;outline:none;min-width:80px;}
 .waiting-last{font-family:var(--mono);font-size:10px;color:var(--text-faint);}
 .waiting-last.recent{color:var(--cyan);}
 
@@ -422,6 +427,7 @@ function renderSection(key){
       // WAITING: informed tracking
       const informed = it.informed || false;
       const count = it.informedCount || 0;
+      const mode = it.informedMode || 'email';
       const lastDate = it.lastInformed ? formatDate(it.lastInformed) : '—';
       const isRecent = it.lastInformed && (new Date() - new Date(it.lastInformed+'T00:00:00')) < 7*86400000;
 
@@ -448,6 +454,10 @@ function renderSection(key){
             <button onclick="changeCount('${it.id}',-1)" title="Decrease">−</button>
             <span>${count}</span>
             <button onclick="changeCount('${it.id}',1)" title="Increase">+</button>
+          </div>
+          <div class="waiting-mode">
+            <span class="waiting-mode-label">via:</span>
+            <span class="waiting-mode-value" onclick="startEdit(this,'${key}','${it.id}','informedMode')">${escapeHtml(mode)}</span>
           </div>
           <span class="waiting-last ${isRecent?'recent':''}" title="Last informed date">${lastDate}</span>
         </div>`;
@@ -497,7 +507,7 @@ function renderSection(key){
 function startEdit(span, key, id, field='text'){
   const input = document.createElement('input');
   input.type = 'text';
-  input.className = field==='text' ? 'item-edit' : 'sub-edit';
+  input.className = field==='text' ? 'item-edit' : field==='informedMode' ? 'waiting-mode-edit' : 'sub-edit';
   input.value = span.textContent === '—' ? '' : span.textContent;
   span.replaceWith(input);
   input.focus();
@@ -510,6 +520,7 @@ function startEdit(span, key, id, field='text'){
       if(field === 'text') item.text = val || item.text;
       else if(field === 'nextHit') item.nextHit = val;
       else if(field === 'nextVersion') item.nextVersion = val;
+      else if(field === 'informedMode') item.informedMode = val || 'email';
       scheduleSave();
     }
     renderSection(key);

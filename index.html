@@ -523,7 +523,7 @@ function renderSection(key){
             <span class="waiting-mode-label">via:</span>
             <span class="waiting-mode-value" onclick="startEdit(this,'${key}','${it.id}','informedMode')">${escapeHtml(mode)}</span>
           </div>
-          <span class="waiting-last ${isRecent?'recent':''}" title="Last informed date">${lastDate}</span>
+          <span class="waiting-last ${isRecent?'recent':''}" onclick="openDatePicker('${it.id}')" style="cursor:pointer;" title="Click to change date">${lastDate}</span>
         </div>`;
     } else {
       // ALL OTHER SECTIONS: standard layout
@@ -617,6 +617,34 @@ function changeCount(id, delta){
   item.informedCount = Math.max(0, (item.informedCount||0) + delta);
   renderSection('waiting');
   scheduleSave();
+}
+
+function openDatePicker(id){
+  const item = state.waiting.find(x=>x.id===id);
+  if(!item) return;
+  
+  const input = document.createElement('input');
+  input.type = 'date';
+  input.value = item.lastInformed || new Date().toISOString().split('T')[0];
+  input.style.position = 'absolute';
+  input.style.opacity = '0';
+  input.style.pointerEvents = 'none';
+  document.body.appendChild(input);
+  
+  input.addEventListener('change', () => {
+    if(input.value){
+      item.lastInformed = input.value;
+      renderSection('waiting');
+      scheduleSave();
+    }
+    input.remove();
+  });
+  
+  input.addEventListener('blur', () => {
+    setTimeout(() => input.remove(), 100);
+  });
+  
+  input.showPicker();
 }
 
 // ── MOVE BETWEEN PANELS ───────────────────────────────────────────────────────

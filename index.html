@@ -221,7 +221,7 @@ footer{text-align:center;color:var(--text-faint);font-family:var(--mono);font-si
     <span><span class="dot">●</span> SYSTEM STATUS — <span id="hud-status">ONE TRUSTED ENTRY POINT</span></span>
     <span class="hud-right">
       <span class="hud-sync" id="hud-sync"></span>
-      <button class="ai-btn" onclick="openAIModal()" id="btn-ai">🤖 AI</button>
+      <button class="ai-btn" onclick="openAIModal()" id="btn-ai" title="Local AI - runs on your device">💻 AI</button>
       <button class="reset-token-btn" onclick="resetToken()">TOKEN</button>
       <span id="hud-clock"></span>
     </span>
@@ -309,7 +309,6 @@ const GH_REPO  = 'command-center';
 const GH_FILE  = 'data.json';
 const GH_API   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
 const TOKEN_KEY = 'cc:gh_token';
-const GEMINI_KEY = 'cc:gemini_key';
 
 const SECTION_LABELS = {
   now:'NOW', next:'NEXT', waiting:'WAITING',
@@ -843,21 +842,59 @@ setInterval(updateTimers, 60000); // update timers every minute
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 loadFromGitHub();
 
-// ── AI MODAL ──────────────────────────────────────────────────────────────────
-function openAIModal(){
-  const key = localStorage.getItem(GEMINI_KEY);
-  if(!key){
-    const input = prompt(
-      'Paste your Google AI Studio API key.\n\n'+
-      'Get one free at: https://aistudio.google.com/app/apikey\n\n'+
-      'It will be stored locally in your browser only.'
-    );
-    if(input && input.trim()){
-      localStorage.setItem(GEMINI_KEY, input.trim());
-      document.getElementById('btn-ai').textContent = '🤖 AI ✓';
+// ── LOCAL AI (Chrome Built-in) ────────────────────────────────────────────────
+let aiSession = null;
+
+async function checkAIAvailability(){
+  if(!window.ai || !window.ai.languageModel){
+    return {available: false, reason: 'not_supported'};
+  }
+  
+  const availability = await window.ai.languageModel.capabilities();
+  return {available: availability.available === 'readily', reason: availability.available};
+}
+
+async function initAI(){
+  if(aiSession) return aiSession;
+  
+  try {
+    aiSession = await window.ai.languageModel.create({
+      temperature: 0.7,
+      topK: 3
+    });
+    return aiSession;
+  } catch(e){
+    console.error('AI init failed:', e);
+    return null;
+  }
+}
+
+async function openAIModal(){
+  const status = await checkAIAvailability();
+  
+  if(!status.available){
+    let message = '❌ Chrome built-in AI is not available.\n\n';
+    
+    if(status.reason === 'not_supported'){
+      message += 'Your browser doesn\'t support the built-in AI yet.\n\n';
+      message += 'Requirements:\n';
+      message += '• Chrome 127+ or Edge 127+\n';
+      message += '• Enable chrome://flags/#optimization-guide-on-device-model\n';
+      message += '• Enable chrome://flags/#prompt-api-for-gemini-nano\n';
+      message += '• Download model from chrome://components/\n\n';
+      message += 'Instructions: https://developer.chrome.com/docs/ai/built-in';
+    } else if(status.reason === 'after-download'){
+      message += 'The AI model is downloading in the background.\n\n';
+      message += 'Check chrome://components/ and look for "Optimization Guide On Device Model"\n';
+      message += 'Click "Check for update" if it hasn\'t started.\n\n';
+      message += 'Try again once it finishes downloading (usually 1-2 minutes).';
     } else {
-      return;
+      message += `Status: ${status.reason}\n\n`;
+      message += 'Try restarting Chrome or checking chrome://flags/';
     }
+    
+    alert(message);
+    return;
   }
   
   document.getElementById('ai-modal').classList.add('open');
@@ -869,11 +906,14 @@ function closeAIModal(){
 }
 
 async function analyzeWithAI(){
-  const key = localStorage.getItem(GEMINI_KEY);
-  if(!key){ openAIModal(); return; }
-  
   const container = document.getElementById('ai-modal-content');
-  container.innerHTML = '<div class="ai-response">⏳ Analyzing your command center...</div>';
+  container.innerHTML = '<div class="ai-response">⏳ Analyzing your command center locally...</div>';
+  
+  const session = await initAI();
+  if(!session){
+    container.innerHTML = '<div class="ai-response" style="color:var(--red);">❌ Failed to initialize AI session. Try restarting Chrome.</div>';
+    return;
+  }
   
   // Build context from all tasks
   const context = {
@@ -885,50 +925,29 @@ async function analyzeWithAI(){
     learning: state.learning.map(x=>x.text)
   };
   
-  const prompt = `You are a productivity advisor analyzing a command center dashboard. Here's what the user is working on:
+  const prompt = `You are a productivity advisor. Analyze this command center dashboard and provide brief, actionable advice.
 
 NOW (doing right now): ${JSON.stringify(context.now)}
 NEXT (up next): ${JSON.stringify(context.next)}
-PROJECTS (active projects): ${JSON.stringify(context.projects)}
+PROJECTS (active): ${JSON.stringify(context.projects)}
 DEADLINES (time-sensitive): ${JSON.stringify(context.deadlines)}
-WAITING (blocked on others): ${JSON.stringify(context.waiting)}
-LEARNING (skills/courses): ${JSON.stringify(context.learning)}
+WAITING (blocked): ${JSON.stringify(context.waiting)}
+LEARNING (skills): ${JSON.stringify(context.learning)}
 
-Provide brief, actionable advice in 4 sections:
+Give me:
+1. FOCUS TODAY: What to tackle first
+2. BLOCKERS: What needs attention
+3. PATTERNS: Risks or opportunities
+4. NEXT ACTIONS: 2-3 specific things to do
 
-1. FOCUS TODAY: What should they tackle first?
-2. BLOCKERS: What's stuck or needs immediate attention?
-3. PATTERNS: Any risks, gaps, or opportunities you notice?
-4. NEXT ACTIONS: 2-3 specific things to do next
-
-Keep it concise, direct, and practical. Be honest if something looks off-track.`;
+Be concise and practical.`;
 
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${key}`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        contents: [{parts: [{text: prompt}]}],
-        generationConfig: {temperature: 0.7, maxOutputTokens: 1000}
-      })
-    });
-    
-    if(!res.ok){
-      const errText = await res.text();
-      throw new Error(`API ${res.status}: ${errText}`);
-    }
-    const data = await res.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
-    
-    container.innerHTML = `<div class="ai-response">${escapeHtml(text)}</div>`;
+    const result = await session.prompt(prompt);
+    container.innerHTML = `<div class="ai-response">${escapeHtml(result)}</div>`;
   } catch(e){
-    container.innerHTML = `<div class="ai-response" style="color:var(--red);">❌ Error: ${e.message}\n\nTroubleshooting:\n- Verify your API key at https://aistudio.google.com/app/apikey\n- Make sure it's a valid Gemini API key\n- Try clicking 🤖 AI button to reconfigure</div>`;
+    container.innerHTML = `<div class="ai-response" style="color:var(--red);">❌ Error: ${e.message}\n\nThe AI session might have expired. Try closing and reopening the modal.</div>`;
   }
-}
-
-// Check if Gemini is configured on load
-if(localStorage.getItem(GEMINI_KEY)){
-  document.getElementById('btn-ai').textContent = '🤖 AI ✓';
 }
 </script>
 </body>

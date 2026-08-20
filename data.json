@@ -10,7 +10,9 @@
     {
       "id": "mssj89jnlhvm9",
       "text": "Upanishad Graphics",
-      "informedCount": 0
+      "informedCount": 1,
+      "informed": true,
+      "lastInformed": "2026-08-20"
     }
   ],
   "projects": [

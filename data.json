@@ -19,7 +19,8 @@
   "projects": [
     {
       "id": "msx2mqihxe6hl",
-      "text": "reels"
+      "text": "reels",
+      "nextHit": "test"
     },
     {
       "id": "mspxfs25bmrvk",

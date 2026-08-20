@@ -59,9 +59,9 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .rule-plaque .rule-sub{color:var(--text-dim);font-size:13px;margin-top:8px;line-height:1.5;}
 
 /* GRID */
-.grid{display:grid;grid-template-columns:1fr 400px;gap:14px;align-items:start;}
-.grid-left{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;}
-.grid-right{display:flex;flex-direction:column;gap:14px;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
+.grid-left{display:flex;flex-direction:column;gap:14px;height:100%;}
+.grid-right{display:flex;flex-direction:column;gap:14px;height:100%;}
 
 .panel{background:var(--panel);border:1px solid var(--line);padding:16px 16px 14px;display:flex;flex-direction:column;min-height:0;}
 .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line);}
@@ -71,22 +71,24 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .panel-num-edit{background:transparent;border:none;border-bottom:1px solid var(--amber);color:var(--text);font-family:var(--mono);font-weight:700;font-size:12.5px;letter-spacing:.14em;outline:none;width:32px;padding:0;}
 .panel-count{font-family:var(--mono);font-size:11px;color:var(--text-faint);background:var(--panel-raised);padding:2px 7px;border:1px solid var(--line);}
 
-.p-now{grid-column:span 5;border-left:2px solid var(--amber);}
+/* left panels - equal flex distribution */
+.grid-left .panel{flex:1;min-height:0;}
+
+/* right panel - projects fills available height */
+.p-projects{flex:1;min-height:0;}
+
+.p-now{border-left:2px solid var(--amber);}
 .p-now .panel-title{color:var(--amber);}
-.p-next{grid-column:span 4;border-left:2px solid var(--cyan);}
+.p-next{border-left:2px solid var(--cyan);}
 .p-next .panel-title{color:var(--cyan);}
-.p-waiting{grid-column:span 3;border-left:2px dashed var(--text-faint);}
-.p-deadlines{grid-column:span 7;}
-.p-learning{grid-column:span 5;}
-.p-projects{border-left:2px solid var(--cyan);min-height:400px;}
+.p-waiting{border-left:2px dashed var(--text-faint);}
+.p-projects{border-left:2px solid var(--cyan);}
 .p-projects .panel-title{color:var(--cyan);}
 .p-archive{grid-column:1 / -1;}
 
-@media(max-width:1100px){
+@media(max-width:900px){
   .grid{grid-template-columns:1fr;grid-template-rows:auto;}
-  .grid-left{grid-column:1;}
-  .grid-right{grid-column:1;}
-  .p-now,.p-next,.p-waiting,.p-deadlines,.p-learning,.p-projects{grid-column:span 12;}
+  .grid-left,.grid-right{grid-column:1;}
 }
 
 /* LIST ITEMS */

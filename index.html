@@ -97,12 +97,14 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 /* project item with sub-fields */
 .item-project{flex-direction:column;align-items:stretch;gap:6px;}
 .item-project .project-main{display:flex;align-items:center;gap:6px;width:100%;}
-.item-project .project-subs{display:flex;gap:8px;padding:4px 0 0 28px;font-size:12px;}
-.item-project .sub-field{flex:1;display:flex;align-items:baseline;gap:4px;color:var(--text-dim);}
+.item-project .project-subs{display:flex;gap:8px;padding:4px 0 0 28px;font-size:12px;flex-wrap:wrap;}
+.item-project .sub-field{flex:1;display:flex;align-items:baseline;gap:4px;color:var(--text-dim);min-width:180px;}
 .item-project .sub-label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--text-faint);text-transform:uppercase;white-space:nowrap;}
 .item-project .sub-value{flex:1;cursor:pointer;word-break:break-word;}
 .item-project .sub-value:hover{color:var(--text);}
 .item-project .sub-edit{flex:1;background:transparent;border:none;border-bottom:1px dashed var(--line-bright);color:var(--text-dim);font-family:var(--sans);font-size:12px;line-height:1.3;outline:none;padding:0 2px;min-width:0;}
+.item-project .sub-date{font-family:var(--mono);font-size:11px;color:var(--cyan);cursor:pointer;padding:2px 6px;border:1px solid var(--line);background:var(--panel-raised);}
+.item-project .sub-date:hover{border-color:var(--cyan);}
 
 /* waiting item with informed tracking */
 .item-waiting{flex-direction:column;align-items:stretch;gap:6px;flex-wrap:nowrap;}
@@ -185,6 +187,17 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .archive-item button:hover{color:var(--red);}
 .archive-note{font-family:var(--mono);font-size:11px;color:var(--text-faint);margin-top:10px;letter-spacing:.02em;}
 
+/* GANTT CHART */
+.p-gantt{grid-column:1 / -1;border-left:2px solid var(--cyan);}
+.p-gantt .panel-title{color:var(--cyan);}
+.gantt-container{display:flex;flex-direction:column;gap:8px;}
+.gantt-row{display:flex;align-items:center;gap:12px;background:var(--panel-raised);border:1px solid var(--line);padding:10px 12px;}
+.gantt-label{font-family:var(--sans);font-size:13px;color:var(--text);min-width:200px;flex-shrink:0;}
+.gantt-track{flex:1;height:28px;background:#0e1113;border:1px solid var(--line);position:relative;overflow:hidden;}
+.gantt-bar{position:absolute;height:100%;background:linear-gradient(90deg, var(--cyan), var(--cyan-dim));border-right:2px solid var(--cyan);display:flex;align-items:center;padding:0 8px;font-family:var(--mono);font-size:10px;color:var(--text);white-space:nowrap;}
+.gantt-date{font-family:var(--mono);font-size:11px;color:var(--text-dim);min-width:80px;text-align:right;flex-shrink:0;}
+.gantt-empty{color:var(--text-faint);font-size:13px;font-style:italic;padding:12px;text-align:center;}
+
 /* AI MODAL */
 #ai-modal{position:fixed;inset:0;background:rgba(10,12,14,.95);display:none;align-items:center;justify-content:center;z-index:999;padding:20px;}
 #ai-modal.open{display:flex;}
@@ -221,7 +234,6 @@ footer{text-align:center;color:var(--text-faint);font-family:var(--mono);font-si
     <span><span class="dot">●</span> SYSTEM STATUS — <span id="hud-status">ONE TRUSTED ENTRY POINT</span></span>
     <span class="hud-right">
       <span class="hud-sync" id="hud-sync"></span>
-      <button class="ai-btn" onclick="openAIModal()" id="btn-ai" title="Local AI - runs on your device">💻 AI</button>
       <button class="reset-token-btn" onclick="resetToken()">TOKEN</button>
       <span id="hud-clock"></span>
     </span>
@@ -286,20 +298,16 @@ footer{text-align:center;color:var(--text-faint);font-family:var(--mono);font-si
       </div>
       <div class="archive-note">// this is not a filing system. it is a drawer you close. nothing here needs your attention today.</div>
     </section>
+    <section class="panel p-gantt">
+      <div class="panel-head">
+        <span class="panel-title">📊 TIMELINE</span>
+        <span class="panel-count" id="count-gantt">0</span>
+      </div>
+      <div class="gantt-container" id="gantt-container"></div>
+    </section>
   </div>
 
   <footer>YOUR JOB IS NOT TO ORGANIZE YOUR KNOWLEDGE. YOUR JOB IS TO KNOW WHAT DESERVES YOUR ATTENTION TODAY.</footer>
-</div>
-
-<!-- AI MODAL -->
-<div id="ai-modal">
-  <div class="ai-modal-box">
-    <div class="ai-modal-head">
-      <span class="ai-modal-title">🤖 AI ADVISOR</span>
-      <button class="ai-modal-close" onclick="closeAIModal()">×</button>
-    </div>
-    <div id="ai-modal-content"></div>
-  </div>
 </div>
 
 <script>
@@ -413,6 +421,7 @@ function renderAll(){
   SECTIONS.forEach(renderSection); 
   SECTIONS.forEach(updatePanelTitle);
   renderArchive(); 
+  renderGantt();
   updateTimers(); 
 }
 
@@ -489,7 +498,9 @@ function renderSection(key){
       .join('');
 
     if(key === 'projects'){
-      // PROJECTS: special layout with sub-fields
+      // PROJECTS: special layout with sub-fields + date for Next Hit
+      const hitDate = it.nextHitDate ? formatDate(it.nextHitDate) : '—';
+      
       li.innerHTML = `
         <div class="project-main">
           <span class="drag-handle" title="Drag to reorder">⠿</span>
@@ -506,6 +517,7 @@ function renderSection(key){
           <div class="sub-field">
             <span class="sub-label">Next Hit:</span>
             <span class="sub-value" onclick="startEdit(this,'${key}','${it.id}','nextHit')">${escapeHtml(it.nextHit||'—')}</span>
+            <span class="sub-date" onclick="openProjectDatePicker('${it.id}')" title="Target date">${hitDate}</span>
           </div>
           <div class="sub-field">
             <span class="sub-label">Next Version:</span>
@@ -842,112 +854,79 @@ setInterval(updateTimers, 60000); // update timers every minute
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 loadFromGitHub();
 
-// ── LOCAL AI (Chrome Built-in) ────────────────────────────────────────────────
-let aiSession = null;
-
-async function checkAIAvailability(){
-  if(!window.ai || !window.ai.languageModel){
-    return {available: false, reason: 'not_supported'};
-  }
+// ── PROJECT DATE PICKER ───────────────────────────────────────────────────────
+function openProjectDatePicker(id){
+  const item = state.projects.find(x=>x.id===id);
+  if(!item) return;
   
-  const availability = await window.ai.languageModel.capabilities();
-  return {available: availability.available === 'readily', reason: availability.available};
+  const input = document.createElement('input');
+  input.type = 'date';
+  input.value = item.nextHitDate || '';
+  input.style.position = 'absolute';
+  input.style.opacity = '0';
+  input.style.pointerEvents = 'none';
+  document.body.appendChild(input);
+  
+  input.addEventListener('change', () => {
+    item.nextHitDate = input.value || null;
+    renderSection('projects');
+    renderGantt();
+    scheduleSave();
+    input.remove();
+  });
+  
+  input.addEventListener('blur', () => {
+    setTimeout(() => input.remove(), 100);
+  });
+  
+  input.showPicker();
 }
 
-async function initAI(){
-  if(aiSession) return aiSession;
+// ── GANTT CHART ───────────────────────────────────────────────────────────────
+function renderGantt(){
+  const container = document.getElementById('gantt-container');
+  const countEl = document.getElementById('count-gantt');
   
-  try {
-    aiSession = await window.ai.languageModel.create({
-      temperature: 0.7,
-      topK: 3
-    });
-    return aiSession;
-  } catch(e){
-    console.error('AI init failed:', e);
-    return null;
-  }
-}
-
-async function openAIModal(){
-  const status = await checkAIAvailability();
+  const projectsWithDates = state.projects.filter(p => p.nextHitDate);
+  countEl.textContent = projectsWithDates.length;
   
-  if(!status.available){
-    let message = '❌ Chrome built-in AI is not available.\n\n';
-    
-    if(status.reason === 'not_supported'){
-      message += 'Your browser doesn\'t support the built-in AI yet.\n\n';
-      message += 'Requirements:\n';
-      message += '• Chrome 127+ or Edge 127+\n';
-      message += '• Enable chrome://flags/#optimization-guide-on-device-model\n';
-      message += '• Enable chrome://flags/#prompt-api-for-gemini-nano\n';
-      message += '• Download model from chrome://components/\n\n';
-      message += 'Instructions: https://developer.chrome.com/docs/ai/built-in';
-    } else if(status.reason === 'after-download'){
-      message += 'The AI model is downloading in the background.\n\n';
-      message += 'Check chrome://components/ and look for "Optimization Guide On Device Model"\n';
-      message += 'Click "Check for update" if it hasn\'t started.\n\n';
-      message += 'Try again once it finishes downloading (usually 1-2 minutes).';
-    } else {
-      message += `Status: ${status.reason}\n\n`;
-      message += 'Try restarting Chrome or checking chrome://flags/';
-    }
-    
-    alert(message);
+  if(projectsWithDates.length === 0){
+    container.innerHTML = '<div class="gantt-empty">No projects with Next Hit dates yet. Click the date badge next to any project\'s Next Hit to set a target date.</div>';
     return;
   }
   
-  document.getElementById('ai-modal').classList.add('open');
-  analyzeWithAI();
-}
-
-function closeAIModal(){
-  document.getElementById('ai-modal').classList.remove('open');
-}
-
-async function analyzeWithAI(){
-  const container = document.getElementById('ai-modal-content');
-  container.innerHTML = '<div class="ai-response">⏳ Analyzing your command center locally...</div>';
+  // Find date range
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const dates = projectsWithDates.map(p => new Date(p.nextHitDate+'T00:00:00'));
+  const minDate = new Date(Math.min(today, ...dates));
+  const maxDate = new Date(Math.max(...dates));
+  const rangeDays = Math.ceil((maxDate - minDate) / 86400000) + 1;
   
-  const session = await initAI();
-  if(!session){
-    container.innerHTML = '<div class="ai-response" style="color:var(--red);">❌ Failed to initialize AI session. Try restarting Chrome.</div>';
-    return;
-  }
-  
-  // Build context from all tasks
-  const context = {
-    now: state.now.map(x=>x.text),
-    next: state.next.map(x=>x.text),
-    waiting: state.waiting.map(x=>({task:x.text, informed:x.informed, count:x.informedCount, lastDate:x.lastInformed, mode:x.informedMode})),
-    projects: state.projects.map(x=>({name:x.text, nextHit:x.nextHit, nextVersion:x.nextVersion})),
-    deadlines: state.deadlines.map(x=>({task:x.text, date:x.date})),
-    learning: state.learning.map(x=>x.text)
-  };
-  
-  const prompt = `You are a productivity advisor. Analyze this command center dashboard and provide brief, actionable advice.
-
-NOW (doing right now): ${JSON.stringify(context.now)}
-NEXT (up next): ${JSON.stringify(context.next)}
-PROJECTS (active): ${JSON.stringify(context.projects)}
-DEADLINES (time-sensitive): ${JSON.stringify(context.deadlines)}
-WAITING (blocked): ${JSON.stringify(context.waiting)}
-LEARNING (skills): ${JSON.stringify(context.learning)}
-
-Give me:
-1. FOCUS TODAY: What to tackle first
-2. BLOCKERS: What needs attention
-3. PATTERNS: Risks or opportunities
-4. NEXT ACTIONS: 2-3 specific things to do
-
-Be concise and practical.`;
-
-  try {
-    const result = await session.prompt(prompt);
-    container.innerHTML = `<div class="ai-response">${escapeHtml(result)}</div>`;
-  } catch(e){
-    container.innerHTML = `<div class="ai-response" style="color:var(--red);">❌ Error: ${e.message}\n\nThe AI session might have expired. Try closing and reopening the modal.</div>`;
-  }
+  container.innerHTML = projectsWithDates
+    .sort((a,b) => a.nextHitDate.localeCompare(b.nextHitDate))
+    .map(p => {
+      const targetDate = new Date(p.nextHitDate+'T00:00:00');
+      const daysFromStart = Math.ceil((targetDate - minDate) / 86400000);
+      const leftPercent = (daysFromStart / rangeDays) * 100;
+      const widthPercent = Math.max(2, 100 - leftPercent);
+      
+      const daysUntil = Math.ceil((targetDate - today) / 86400000);
+      let statusText = '';
+      if(daysUntil < 0) statusText = `${Math.abs(daysUntil)}d overdue`;
+      else if(daysUntil === 0) statusText = 'today';
+      else if(daysUntil === 1) statusText = 'tomorrow';
+      else statusText = `${daysUntil}d`;
+      
+      return `
+        <div class="gantt-row">
+          <div class="gantt-label">${escapeHtml(p.text)}</div>
+          <div class="gantt-track">
+            <div class="gantt-bar" style="left:${leftPercent}%;width:${widthPercent}%">${statusText}</div>
+          </div>
+          <div class="gantt-date">${formatDate(p.nextHitDate)}</div>
+        </div>`;
+    }).join('');
 }
 </script>
 </body>

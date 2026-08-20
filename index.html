@@ -523,7 +523,10 @@ function renderSection(key){
             <span class="waiting-mode-label">via:</span>
             <span class="waiting-mode-value" onclick="startEdit(this,'${key}','${it.id}','informedMode')">${escapeHtml(mode)}</span>
           </div>
-          <span class="waiting-last ${isRecent?'recent':''}" onclick="openDatePicker('${it.id}')" style="cursor:pointer;" title="Click to change date">${lastDate}</span>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span class="waiting-last ${isRecent?'recent':''}" onclick="openDatePicker('${it.id}')" style="cursor:pointer;" title="Click to change date">${lastDate}</span>
+            ${it.lastInformed ? `<button onclick="clearDate('${it.id}')" style="background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;padding:0 2px;line-height:1;" title="Clear date">×</button>` : ''}
+          </div>
         </div>`;
     } else {
       // ALL OTHER SECTIONS: standard layout
@@ -645,6 +648,14 @@ function openDatePicker(id){
   });
   
   input.showPicker();
+}
+
+function clearDate(id){
+  const item = state.waiting.find(x=>x.id===id);
+  if(!item) return;
+  item.lastInformed = null;
+  renderSection('waiting');
+  scheduleSave();
 }
 
 // ── MOVE BETWEEN PANELS ───────────────────────────────────────────────────────

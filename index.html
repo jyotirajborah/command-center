@@ -102,6 +102,13 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .item-date.soon{color:var(--amber);}
 .item-date.ok{color:var(--green);}
 
+/* deadline timer */
+.item-timer{font-family:var(--mono);font-size:11px;white-space:nowrap;flex-shrink:0;padding:2px 6px;border:1px solid var(--line);border-radius:2px;}
+.item-timer.urgent{color:var(--red);border-color:var(--red-dim);background:rgba(255,92,92,.08);}
+.item-timer.soon{color:var(--amber);border-color:var(--amber-dim);background:rgba(255,176,32,.08);}
+.item-timer.ok{color:var(--green);border-color:#1a3d2b;background:rgba(76,175,125,.08);}
+.item-timer.overdue{color:var(--red);border-color:var(--red);background:var(--red-dim);font-weight:700;}
+
 /* text / edit */
 .item-text{flex:1;word-break:break-word;cursor:pointer;}
 .item-text:hover{color:var(--amber);}
@@ -339,7 +346,7 @@ function scheduleSave(){
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
-function renderAll(){ SECTIONS.forEach(renderSection); renderArchive(); }
+function renderAll(){ SECTIONS.forEach(renderSection); renderArchive(); updateTimers(); }
 
 function renderSection(key){
   const ul = document.getElementById('list-'+key);
@@ -359,9 +366,13 @@ function renderSection(key){
 
     // build date badge
     let dateBadge = '';
+    let timerBadge = '';
     if(it.date){
       const cls = deadlineClass(it.date);
       dateBadge = `<span class="item-date ${cls}">${formatDate(it.date)}</span>`;
+      if(key === 'deadlines'){
+        timerBadge = `<span class="item-timer ${cls}" data-deadline="${it.date}">—</span>`;
+      }
     }
 
     // other sections for move menu (exclude current)
@@ -398,6 +409,7 @@ function renderSection(key){
       li.innerHTML = `
         <span class="drag-handle" title="Drag to reorder">⠿</span>
         ${dateBadge}
+        ${timerBadge}
         <span class="item-text" onclick="startEdit(this,'${key}','${it.id}','text')">${escapeHtml(it.text)}</span>
         <span class="item-actions">
           <span class="move-wrap">
@@ -501,6 +513,40 @@ function deadlineClass(iso){
   return 'ok';
 }
 
+// ── UPDATE TIMERS ─────────────────────────────────────────────────────────────
+function updateTimers(){
+  document.querySelectorAll('.item-timer[data-deadline]').forEach(el => {
+    const iso = el.dataset.deadline;
+    if(!iso){ el.textContent = '—'; return; }
+    const target = new Date(iso + 'T23:59:59');
+    const now = new Date();
+    const diff = target - now;
+    
+    if(diff < 0){
+      // overdue
+      el.className = 'item-timer overdue';
+      const overdue = Math.abs(diff);
+      const days = Math.floor(overdue / 86400000);
+      const hours = Math.floor((overdue % 86400000) / 3600000);
+      el.textContent = days > 0 ? `${days}d overdue` : `${hours}h overdue`;
+    } else {
+      // countdown
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      
+      if(days > 1) el.textContent = `${days}d ${hours}h`;
+      else if(days === 1) el.textContent = `1d ${hours}h`;
+      else if(hours > 0) el.textContent = `${hours}h ${mins}m`;
+      else el.textContent = `${mins}m`;
+      
+      // keep class in sync
+      const cls = deadlineClass(iso);
+      el.className = 'item-timer ' + cls;
+    }
+  });
+}
+
 // ── ARCHIVE ───────────────────────────────────────────────────────────────────
 function renderArchive(){
   const stack = document.getElementById('list-archive');
@@ -580,6 +626,9 @@ function tickClock(){
 }
 tickClock();
 setInterval(tickClock, 30000);
+
+// ── TIMER UPDATES ─────────────────────────────────────────────────────────────
+setInterval(updateTimers, 60000); // update timers every minute
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 loadFromGitHub();

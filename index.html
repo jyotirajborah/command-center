@@ -1000,7 +1000,7 @@ Provide brief, actionable advice:
 Keep it concise and practical.`;
 
   try {
-    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -1009,13 +1009,16 @@ Keep it concise and practical.`;
       })
     });
     
-    if(!res.ok) throw new Error('API error: '+res.status);
+    if(!res.ok){
+      const errText = await res.text();
+      throw new Error(`API ${res.status}: ${errText}`);
+    }
     const data = await res.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
     
     responseContainer.innerHTML = `<div class="ai-response">${escapeHtml(text)}</div>`;
   } catch(e){
-    responseContainer.innerHTML = `<div class="ai-response" style="color:var(--red);">Error: ${e.message}\n\nCheck your API key or try again.</div>`;
+    responseContainer.innerHTML = `<div class="ai-response" style="color:var(--red);">Error: ${e.message}\n\nTroubleshooting:\n- Verify your API key at https://aistudio.google.com/app/apikey\n- Make sure the key has Generative Language API enabled\n- Try generating a fresh key</div>`;
   }
   
   btn.disabled = false;

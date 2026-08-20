@@ -59,21 +59,35 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .rule-plaque .rule-sub{color:var(--text-dim);font-size:13px;margin-top:8px;line-height:1.5;}
 
 /* GRID */
-.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;}
+.grid{display:grid;grid-template-columns:1fr 400px;gap:14px;align-items:start;}
+.grid-left{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;}
+.grid-right{display:flex;flex-direction:column;gap:14px;}
+
 .panel{background:var(--panel);border:1px solid var(--line);padding:16px 16px 14px;display:flex;flex-direction:column;min-height:0;}
 .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line);}
-.panel-title{font-family:var(--mono);font-weight:700;font-size:12.5px;letter-spacing:.14em;color:var(--text);}
+.panel-title{font-family:var(--mono);font-weight:700;font-size:12.5px;letter-spacing:.14em;color:var(--text);display:flex;align-items:center;gap:6px;}
+.panel-num{cursor:pointer;opacity:.7;}
+.panel-num:hover{opacity:1;color:var(--amber);}
+.panel-num-edit{background:transparent;border:none;border-bottom:1px solid var(--amber);color:var(--text);font-family:var(--mono);font-weight:700;font-size:12.5px;letter-spacing:.14em;outline:none;width:32px;padding:0;}
 .panel-count{font-family:var(--mono);font-size:11px;color:var(--text-faint);background:var(--panel-raised);padding:2px 7px;border:1px solid var(--line);}
+
 .p-now{grid-column:span 5;border-left:2px solid var(--amber);}
 .p-now .panel-title{color:var(--amber);}
 .p-next{grid-column:span 4;border-left:2px solid var(--cyan);}
 .p-next .panel-title{color:var(--cyan);}
 .p-waiting{grid-column:span 3;border-left:2px dashed var(--text-faint);}
-.p-projects{grid-column:span 5;}
-.p-deadlines{grid-column:span 4;}
-.p-learning{grid-column:span 3;}
-.p-archive{grid-column:span 12;}
-@media(max-width:880px){.p-now,.p-next,.p-waiting,.p-projects,.p-deadlines,.p-learning{grid-column:span 12;}}
+.p-deadlines{grid-column:span 7;}
+.p-learning{grid-column:span 5;}
+.p-projects{border-left:2px solid var(--cyan);min-height:400px;}
+.p-projects .panel-title{color:var(--cyan);}
+.p-archive{grid-column:1 / -1;}
+
+@media(max-width:1100px){
+  .grid{grid-template-columns:1fr;grid-template-rows:auto;}
+  .grid-left{grid-column:1;}
+  .grid-right{grid-column:1;}
+  .p-now,.p-next,.p-waiting,.p-deadlines,.p-learning,.p-projects{grid-column:span 12;}
+}
 
 /* LIST ITEMS */
 .items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;flex:1;}
@@ -213,40 +227,44 @@ footer{text-align:center;color:var(--text-faint);font-family:var(--mono);font-si
   </div>
 
   <div class="grid">
-    <section class="panel p-now">
-      <div class="panel-head"><span class="panel-title">01 · NOW</span><span class="panel-count" id="count-now">0</span></div>
-      <ul class="items" id="list-now"></ul>
-      <div class="add-row"><input type="text" id="input-now" placeholder="What are you doing right now?"><button onclick="addItem('now')">ADD</button></div>
-    </section>
-    <section class="panel p-next">
-      <div class="panel-head"><span class="panel-title">02 · NEXT</span><span class="panel-count" id="count-next">0</span></div>
-      <ul class="items" id="list-next"></ul>
-      <div class="add-row"><input type="text" id="input-next" placeholder="What comes after?"><button onclick="addItem('next')">ADD</button></div>
-    </section>
-    <section class="panel p-waiting">
-      <div class="panel-head"><span class="panel-title">06 · WAITING</span><span class="panel-count" id="count-waiting">0</span></div>
-      <ul class="items" id="list-waiting"></ul>
-      <div class="add-row"><input type="text" id="input-waiting" placeholder="Blocked on..."><button onclick="addItem('waiting')">ADD</button></div>
-    </section>
-    <section class="panel p-projects">
-      <div class="panel-head"><span class="panel-title">03 · PROJECTS</span><span class="panel-count" id="count-projects">0</span></div>
-      <ul class="items" id="list-projects"></ul>
-      <div class="add-row"><input type="text" id="input-projects" placeholder="Active project (only if it's truly active)"><button onclick="addItem('projects')">ADD</button></div>
-    </section>
-    <section class="panel p-deadlines">
-      <div class="panel-head"><span class="panel-title">04 · DEADLINES</span><span class="panel-count" id="count-deadlines">0</span></div>
-      <ul class="items" id="list-deadlines"></ul>
-      <div class="add-row">
-        <input type="text" id="input-deadlines" placeholder="What's due">
-        <input type="date" id="input-deadlines-date">
-        <button onclick="addDeadline()">ADD</button>
-      </div>
-    </section>
-    <section class="panel p-learning">
-      <div class="panel-head"><span class="panel-title">05 · LEARNING</span><span class="panel-count" id="count-learning">0</span></div>
-      <ul class="items" id="list-learning"></ul>
-      <div class="add-row"><input type="text" id="input-learning" placeholder="Course / book / tool"><button onclick="addItem('learning')">ADD</button></div>
-    </section>
+    <div class="grid-left">
+      <section class="panel p-now">
+        <div class="panel-head"><span class="panel-title">01 · NOW</span><span class="panel-count" id="count-now">0</span></div>
+        <ul class="items" id="list-now"></ul>
+        <div class="add-row"><input type="text" id="input-now" placeholder="What are you doing right now?"><button onclick="addItem('now')">ADD</button></div>
+      </section>
+      <section class="panel p-next">
+        <div class="panel-head"><span class="panel-title">02 · NEXT</span><span class="panel-count" id="count-next">0</span></div>
+        <ul class="items" id="list-next"></ul>
+        <div class="add-row"><input type="text" id="input-next" placeholder="What comes after?"><button onclick="addItem('next')">ADD</button></div>
+      </section>
+      <section class="panel p-waiting">
+        <div class="panel-head"><span class="panel-title">06 · WAITING</span><span class="panel-count" id="count-waiting">0</span></div>
+        <ul class="items" id="list-waiting"></ul>
+        <div class="add-row"><input type="text" id="input-waiting" placeholder="Blocked on..."><button onclick="addItem('waiting')">ADD</button></div>
+      </section>
+      <section class="panel p-deadlines">
+        <div class="panel-head"><span class="panel-title">04 · DEADLINES</span><span class="panel-count" id="count-deadlines">0</span></div>
+        <ul class="items" id="list-deadlines"></ul>
+        <div class="add-row">
+          <input type="text" id="input-deadlines" placeholder="What's due">
+          <input type="date" id="input-deadlines-date">
+          <button onclick="addDeadline()">ADD</button>
+        </div>
+      </section>
+      <section class="panel p-learning">
+        <div class="panel-head"><span class="panel-title">05 · LEARNING</span><span class="panel-count" id="count-learning">0</span></div>
+        <ul class="items" id="list-learning"></ul>
+        <div class="add-row"><input type="text" id="input-learning" placeholder="Course / book / tool"><button onclick="addItem('learning')">ADD</button></div>
+      </section>
+    </div>
+    <div class="grid-right">
+      <section class="panel p-projects">
+        <div class="panel-head"><span class="panel-title">03 · PROJECTS</span><span class="panel-count" id="count-projects">0</span></div>
+        <ul class="items" id="list-projects"></ul>
+        <div class="add-row"><input type="text" id="input-projects" placeholder="Active project (only if it's truly active)"><button onclick="addItem('projects')">ADD</button></div>
+      </section>
+    </div>
     <section class="panel p-archive">
       <div class="panel-head"><span class="panel-title">07 · ARCHIVE / INBOX</span><span class="panel-count" id="count-archive">0 items dumped</span></div>
       <div class="archive-body">
@@ -272,12 +290,16 @@ const GH_API   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/$
 const TOKEN_KEY = 'cc:gh_token';
 
 const SECTION_LABELS = {
-  now:'01 · NOW', next:'02 · NEXT', waiting:'06 · WAITING',
-  projects:'03 · PROJECTS', deadlines:'04 · DEADLINES', learning:'05 · LEARNING'
+  now:'NOW', next:'NEXT', waiting:'WAITING',
+  projects:'PROJECTS', deadlines:'DEADLINES', learning:'LEARNING'
+};
+const SECTION_NUMBERS = {
+  now:'01', next:'02', waiting:'06',
+  projects:'03', deadlines:'04', learning:'05'
 };
 const SECTIONS = ['now','next','waiting','projects','deadlines','learning'];
 
-let state = {now:[],next:[],waiting:[],projects:[],deadlines:[],learning:[],archive:[]};
+let state = {now:[],next:[],waiting:[],projects:[],deadlines:[],learning:[],archive:[],sectionNumbers:{}};
 let fileSha   = null;
 let saveTimer = null;
 let dragSrc   = null;  // {key, id}
@@ -334,6 +356,7 @@ async function loadFromGitHub(){
     const decoded = JSON.parse(atob(json.content.replace(/\n/g,'')));
     SECTIONS.forEach(k => { state[k] = decoded[k] || []; });
     state.archive = decoded.archive || [];
+    state.sectionNumbers = decoded.sectionNumbers || {};
     setSyncStatus('saved','SYNCED');
     renderAll();
   } catch(e){ setSyncStatus('error','LOAD ERROR'); console.error(e); }
@@ -365,7 +388,48 @@ function scheduleSave(){
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
-function renderAll(){ SECTIONS.forEach(renderSection); renderArchive(); updateTimers(); }
+function renderAll(){ 
+  SECTIONS.forEach(renderSection); 
+  SECTIONS.forEach(updatePanelTitle);
+  renderArchive(); 
+  updateTimers(); 
+}
+
+function updatePanelTitle(key){
+  const titleEl = document.querySelector(`#list-${key}`).closest('.panel').querySelector('.panel-title');
+  if(!titleEl) return;
+  const num = state.sectionNumbers[key] || SECTION_NUMBERS[key];
+  const label = SECTION_LABELS[key];
+  titleEl.innerHTML = `<span class="panel-num" onclick="editPanelNumber('${key}')">${escapeHtml(num)}</span> · ${escapeHtml(label)}`;
+}
+
+function editPanelNumber(key){
+  const titleEl = document.querySelector(`#list-${key}`).closest('.panel').querySelector('.panel-title');
+  const numSpan = titleEl.querySelector('.panel-num');
+  const currentNum = state.sectionNumbers[key] || SECTION_NUMBERS[key];
+  
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'panel-num-edit';
+  input.value = currentNum;
+  numSpan.replaceWith(input);
+  input.focus();
+  input.select();
+
+  function commit(){
+    const val = input.value.trim();
+    if(val){
+      state.sectionNumbers[key] = val;
+      scheduleSave();
+    }
+    updatePanelTitle(key);
+  }
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', e => {
+    if(e.key==='Enter'){ e.preventDefault(); input.blur(); }
+    if(e.key==='Escape'){ input.removeEventListener('blur',commit); updatePanelTitle(key); }
+  });
+}
 
 function renderSection(key){
   const ul = document.getElementById('list-'+key);
@@ -396,7 +460,11 @@ function renderSection(key){
 
     // other sections for move menu (exclude current)
     const moveOpts = SECTIONS.filter(s=>s!==key)
-      .map(s=>`<button onclick="moveItem('${key}','${it.id}','${s}')">${escapeHtml(SECTION_LABELS[s])}</button>`)
+      .map(s=>{
+        const num = state.sectionNumbers[s] || SECTION_NUMBERS[s];
+        const label = SECTION_LABELS[s];
+        return `<button onclick="moveItem('${key}','${it.id}','${s}')">${num} · ${escapeHtml(label)}</button>`;
+      })
       .join('');
 
     if(key === 'projects'){

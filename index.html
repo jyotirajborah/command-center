@@ -72,16 +72,24 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .p-projects{grid-column:span 5;}
 .p-deadlines{grid-column:span 4;}
 .p-learning{grid-column:span 3;}
-.p-nextversion{grid-column:span 12;border-left:2px solid var(--cyan);}
-.p-nextversion .panel-title{color:var(--cyan);}
 .p-archive{grid-column:span 12;}
-@media(max-width:880px){.p-now,.p-next,.p-waiting,.p-projects,.p-deadlines,.p-learning,.p-nextversion{grid-column:span 12;}}
+@media(max-width:880px){.p-now,.p-next,.p-waiting,.p-projects,.p-deadlines,.p-learning{grid-column:span 12;}}
 
 /* LIST ITEMS */
 .items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;flex:1;}
 .item{display:flex;align-items:center;gap:6px;background:var(--panel-raised);border:1px solid var(--line);padding:7px 9px;font-size:13.5px;line-height:1.4;transition:border-color .15s;}
 .item.drag-over{border-color:var(--amber);}
 .item.dragging{opacity:.35;}
+
+/* project item with sub-fields */
+.item-project{flex-direction:column;align-items:stretch;gap:6px;}
+.item-project .project-main{display:flex;align-items:center;gap:6px;width:100%;}
+.item-project .project-subs{display:flex;gap:8px;padding:4px 0 0 28px;font-size:12px;}
+.item-project .sub-field{flex:1;display:flex;align-items:baseline;gap:4px;color:var(--text-dim);}
+.item-project .sub-label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--text-faint);text-transform:uppercase;white-space:nowrap;}
+.item-project .sub-value{flex:1;cursor:pointer;word-break:break-word;}
+.item-project .sub-value:hover{color:var(--text);}
+.item-project .sub-edit{flex:1;background:transparent;border:none;border-bottom:1px dashed var(--line-bright);color:var(--text-dim);font-family:var(--sans);font-size:12px;line-height:1.3;outline:none;padding:0 2px;min-width:0;}
 
 /* drag handle */
 .drag-handle{color:var(--text-faint);cursor:grab;font-size:12px;flex-shrink:0;user-select:none;padding:0 2px;opacity:.5;}
@@ -213,11 +221,6 @@ footer{text-align:center;color:var(--text-faint);font-family:var(--mono);font-si
       <ul class="items" id="list-learning"></ul>
       <div class="add-row"><input type="text" id="input-learning" placeholder="Course / book / tool"><button onclick="addItem('learning')">ADD</button></div>
     </section>
-    <section class="panel p-nextversion">
-      <div class="panel-head"><span class="panel-title">08 · NEXT VERSION</span><span class="panel-count" id="count-nextversion">0</span></div>
-      <ul class="items" id="list-nextversion"></ul>
-      <div class="add-row"><input type="text" id="input-nextversion" placeholder="My next version..."><button onclick="addItem('nextversion')">ADD</button></div>
-    </section>
     <section class="panel p-archive">
       <div class="panel-head"><span class="panel-title">07 · ARCHIVE / INBOX</span><span class="panel-count" id="count-archive">0 items dumped</span></div>
       <div class="archive-body">
@@ -244,12 +247,11 @@ const TOKEN_KEY = 'cc:gh_token';
 
 const SECTION_LABELS = {
   now:'01 · NOW', next:'02 · NEXT', waiting:'06 · WAITING',
-  projects:'03 · PROJECTS', deadlines:'04 · DEADLINES', learning:'05 · LEARNING',
-  nextversion:'08 · NEXT VERSION'
+  projects:'03 · PROJECTS', deadlines:'04 · DEADLINES', learning:'05 · LEARNING'
 };
-const SECTIONS = ['now','next','waiting','projects','deadlines','learning','nextversion'];
+const SECTIONS = ['now','next','waiting','projects','deadlines','learning'];
 
-let state = {now:[],next:[],waiting:[],projects:[],deadlines:[],learning:[],nextversion:[],archive:[]};
+let state = {now:[],next:[],waiting:[],projects:[],deadlines:[],learning:[],archive:[]};
 let fileSha   = null;
 let saveTimer = null;
 let dragSrc   = null;  // {key, id}
@@ -350,7 +352,7 @@ function renderSection(key){
   ul.innerHTML = '';
   sorted.forEach(it => {
     const li = document.createElement('li');
-    li.className = 'item';
+    li.className = key==='projects' ? 'item item-project' : 'item';
     li.draggable = true;
     li.dataset.id = it.id;
     li.dataset.key = key;
@@ -367,17 +369,44 @@ function renderSection(key){
       .map(s=>`<button onclick="moveItem('${key}','${it.id}','${s}')">${escapeHtml(SECTION_LABELS[s])}</button>`)
       .join('');
 
-    li.innerHTML = `
-      <span class="drag-handle" title="Drag to reorder">⠿</span>
-      ${dateBadge}
-      <span class="item-text" onclick="startEdit(this,'${key}','${it.id}')">${escapeHtml(it.text)}</span>
-      <span class="item-actions">
-        <span class="move-wrap">
-          <button class="btn-move" onclick="toggleMoveMenu(this)" title="Move to...">⇄</button>
-          <span class="move-menu">${moveOpts}</span>
-        </span>
-        <button class="btn-delete" onclick="removeItem('${key}','${it.id}')" title="Remove">&#215;</button>
-      </span>`;
+    if(key === 'projects'){
+      // PROJECTS: special layout with sub-fields
+      li.innerHTML = `
+        <div class="project-main">
+          <span class="drag-handle" title="Drag to reorder">⠿</span>
+          <span class="item-text" onclick="startEdit(this,'${key}','${it.id}','text')">${escapeHtml(it.text)}</span>
+          <span class="item-actions">
+            <span class="move-wrap">
+              <button class="btn-move" onclick="toggleMoveMenu(this)" title="Move to...">⇄</button>
+              <span class="move-menu">${moveOpts}</span>
+            </span>
+            <button class="btn-delete" onclick="removeItem('${key}','${it.id}')" title="Remove">&#215;</button>
+          </span>
+        </div>
+        <div class="project-subs">
+          <div class="sub-field">
+            <span class="sub-label">Next Hit:</span>
+            <span class="sub-value" onclick="startEdit(this,'${key}','${it.id}','nextHit')">${escapeHtml(it.nextHit||'—')}</span>
+          </div>
+          <div class="sub-field">
+            <span class="sub-label">Next Version:</span>
+            <span class="sub-value" onclick="startEdit(this,'${key}','${it.id}','nextVersion')">${escapeHtml(it.nextVersion||'—')}</span>
+          </div>
+        </div>`;
+    } else {
+      // ALL OTHER SECTIONS: standard layout
+      li.innerHTML = `
+        <span class="drag-handle" title="Drag to reorder">⠿</span>
+        ${dateBadge}
+        <span class="item-text" onclick="startEdit(this,'${key}','${it.id}','text')">${escapeHtml(it.text)}</span>
+        <span class="item-actions">
+          <span class="move-wrap">
+            <button class="btn-move" onclick="toggleMoveMenu(this)" title="Move to...">⇄</button>
+            <span class="move-menu">${moveOpts}</span>
+          </span>
+          <button class="btn-delete" onclick="removeItem('${key}','${it.id}')" title="Remove">&#215;</button>
+        </span>`;
+    }
 
     // drag events
     li.addEventListener('dragstart', e => {
@@ -406,20 +435,23 @@ function renderSection(key){
 }
 
 // ── INLINE EDIT ───────────────────────────────────────────────────────────────
-function startEdit(span, key, id){
+function startEdit(span, key, id, field='text'){
   const input = document.createElement('input');
   input.type = 'text';
-  input.className = 'item-edit';
-  input.value = span.textContent;
+  input.className = field==='text' ? 'item-edit' : 'sub-edit';
+  input.value = span.textContent === '—' ? '' : span.textContent;
   span.replaceWith(input);
   input.focus();
   input.select();
 
   function commit(){
     const val = input.value.trim();
-    if(val){
-      const item = state[key].find(x=>x.id===id);
-      if(item){ item.text = val; scheduleSave(); }
+    const item = state[key].find(x=>x.id===id);
+    if(item){
+      if(field === 'text') item.text = val || item.text;
+      else if(field === 'nextHit') item.nextHit = val;
+      else if(field === 'nextVersion') item.nextVersion = val;
+      scheduleSave();
     }
     renderSection(key);
   }

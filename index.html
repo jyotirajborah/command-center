@@ -182,6 +182,22 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .archive-item button:hover{color:var(--red);}
 .archive-note{font-family:var(--mono);font-size:11px;color:var(--text-faint);margin-top:10px;letter-spacing:.02em;}
 
+/* INSIGHTS PANEL */
+.p-insights{grid-column:1 / -1;border-left:2px solid var(--cyan);}
+.p-insights .panel-title{color:var(--cyan);}
+.insights-body{display:flex;flex-direction:column;gap:12px;}
+.insight-item{background:var(--panel-raised);border-left:3px solid var(--amber);padding:10px 12px;font-size:13px;line-height:1.5;}
+.insight-item.info{border-left-color:var(--cyan);}
+.insight-item.warning{border-left-color:var(--amber);}
+.insight-item.urgent{border-left-color:var(--red);}
+.insight-label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--text-faint);text-transform:uppercase;margin-bottom:4px;}
+.insight-text{color:var(--text-dim);}
+.insights-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.insights-actions button{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.06em;background:var(--panel-raised);border:1px solid var(--line-bright);color:var(--text);padding:6px 12px;cursor:pointer;}
+.insights-actions button:hover{background:var(--line-bright);}
+.insights-actions button:disabled{opacity:.5;cursor:not-allowed;}
+.ai-response{background:#0e1113;border:1px solid var(--line-bright);color:var(--text-dim);font-size:13px;padding:12px;margin-top:8px;line-height:1.6;white-space:pre-wrap;}
+
 footer{text-align:center;color:var(--text-faint);font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;margin-top:34px;}
 </style>
 </head>
@@ -272,6 +288,19 @@ footer{text-align:center;color:var(--text-faint);font-family:var(--mono);font-si
       </div>
       <div class="archive-note">// this is not a filing system. it is a drawer you close. nothing here needs your attention today.</div>
     </section>
+    <section class="panel p-insights">
+      <div class="panel-head">
+        <span class="panel-title">🧠 INSIGHTS</span>
+        <span class="panel-count" id="count-insights">0</span>
+      </div>
+      <div class="insights-body" id="insights-body"></div>
+      <div class="insights-actions">
+        <button onclick="analyzeWithRules()">🔍 Refresh Insights</button>
+        <button onclick="setupGemini()" id="btn-gemini-setup">🤖 Setup AI Analysis</button>
+        <button onclick="analyzeWithAI()" id="btn-ai-analyze" style="display:none;">✨ Get AI Advice</button>
+      </div>
+      <div id="ai-response-container"></div>
+    </section>
   </div>
 
   <footer>YOUR JOB IS NOT TO ORGANIZE YOUR KNOWLEDGE. YOUR JOB IS TO KNOW WHAT DESERVES YOUR ATTENTION TODAY.</footer>
@@ -284,6 +313,7 @@ const GH_REPO  = 'command-center';
 const GH_FILE  = 'data.json';
 const GH_API   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
 const TOKEN_KEY = 'cc:gh_token';
+const GEMINI_KEY = 'cc:gemini_key';
 
 const SECTION_LABELS = {
   now:'NOW', next:'NEXT', waiting:'WAITING',
@@ -816,6 +846,190 @@ setInterval(updateTimers, 60000); // update timers every minute
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 loadFromGitHub();
+
+// ── INTELLIGENCE SYSTEM ───────────────────────────────────────────────────────
+function analyzeWithRules(){
+  const insights = [];
+  
+  // Rule 1: Empty NOW panel
+  if(state.now.length === 0 && state.next.length > 0){
+    insights.push({type:'warning', label:'Action needed', text:'NOW is empty but you have tasks in NEXT. Move something to focus on right now.'});
+  }
+  
+  // Rule 2: Projects without Next Hit
+  state.projects.forEach(p => {
+    if(!p.nextHit || p.nextHit === '—'){
+      insights.push({type:'warning', label:'Project stalled', text:`"${p.text}" has no Next Hit defined. What's the immediate action?`});
+    }
+  });
+  
+  // Rule 3: Deadlines without dates
+  state.deadlines.forEach(d => {
+    if(!d.date){
+      insights.push({type:'info', label:'Missing deadline', text:`"${d.text}" has no date set. When is this actually due?`});
+    }
+  });
+  
+  // Rule 4: Urgent deadlines
+  const today = new Date();
+  state.deadlines.forEach(d => {
+    if(d.date){
+      const deadline = new Date(d.date+'T00:00:00');
+      const diffDays = Math.ceil((deadline - today) / 86400000);
+      if(diffDays <= 1 && diffDays >= 0){
+        insights.push({type:'urgent', label:'Deadline today/tomorrow', text:`"${d.text}" is due very soon. Is it ready?`});
+      } else if(diffDays < 0){
+        insights.push({type:'urgent', label:'Overdue', text:`"${d.text}" is overdue by ${Math.abs(diffDays)} days.`});
+      }
+    }
+  });
+  
+  // Rule 5: Old WAITING items
+  state.waiting.forEach(w => {
+    if(w.lastInformed){
+      const lastDate = new Date(w.lastInformed+'T00:00:00');
+      const daysSince = Math.floor((today - lastDate) / 86400000);
+      if(daysSince > 7){
+        insights.push({type:'warning', label:'Follow up needed', text:`"${w.text}" — last informed ${daysSince} days ago. Time to check in?`});
+      }
+    } else if(w.informedCount === 0){
+      insights.push({type:'info', label:'Never informed', text:`"${w.text}" in WAITING but you haven't informed anyone yet.`});
+    }
+  });
+  
+  // Rule 6: Too many NOW tasks
+  if(state.now.length > 3){
+    insights.push({type:'warning', label:'Too much in NOW', text:`You have ${state.now.length} tasks in NOW. You can only do one thing at a time. What's truly happening right now?`});
+  }
+  
+  // Rule 7: Projects without Next Version
+  state.projects.forEach(p => {
+    if(!p.nextVersion || p.nextVersion === '—'){
+      insights.push({type:'info', label:'No vision', text:`"${p.text}" has no Next Version. Where is this project heading?`});
+    }
+  });
+  
+  // Rule 8: Nothing in LEARNING
+  if(state.learning.length === 0){
+    insights.push({type:'info', label:'No learning tracked', text:'You have nothing in LEARNING. What skill or knowledge are you building?'});
+  }
+  
+  renderInsights(insights);
+}
+
+function renderInsights(insights){
+  const container = document.getElementById('insights-body');
+  const countEl = document.getElementById('count-insights');
+  countEl.textContent = insights.length;
+  
+  if(insights.length === 0){
+    container.innerHTML = '<div class="empty-hint">All clear. Your command center looks solid.</div>';
+    return;
+  }
+  
+  container.innerHTML = insights.map(i => `
+    <div class="insight-item ${i.type}">
+      <div class="insight-label">${i.label}</div>
+      <div class="insight-text">${escapeHtml(i.text)}</div>
+    </div>
+  `).join('');
+}
+
+// ── GEMINI AI INTEGRATION ─────────────────────────────────────────────────────
+function setupGemini(){
+  const key = localStorage.getItem(GEMINI_KEY);
+  if(key){
+    if(confirm('Gemini AI is already configured. Want to change the API key?')){
+      localStorage.removeItem(GEMINI_KEY);
+      document.getElementById('btn-gemini-setup').textContent = '🤖 Setup AI Analysis';
+      document.getElementById('btn-ai-analyze').style.display = 'none';
+    }
+    return;
+  }
+  
+  const input = prompt(
+    'Paste your Google AI Studio API key.\n\n'+
+    'Get one free at: https://aistudio.google.com/app/apikey\n\n'+
+    'It will be stored locally in your browser only.'
+  );
+  
+  if(input && input.trim()){
+    localStorage.setItem(GEMINI_KEY, input.trim());
+    document.getElementById('btn-gemini-setup').textContent = '✓ AI Configured';
+    document.getElementById('btn-ai-analyze').style.display = 'inline-block';
+    alert('Gemini AI configured! Click "Get AI Advice" to analyze your tasks.');
+  }
+}
+
+async function analyzeWithAI(){
+  const key = localStorage.getItem(GEMINI_KEY);
+  if(!key){ setupGemini(); return; }
+  
+  const btn = document.getElementById('btn-ai-analyze');
+  btn.disabled = true;
+  btn.textContent = '⏳ Analyzing...';
+  
+  const responseContainer = document.getElementById('ai-response-container');
+  responseContainer.innerHTML = '';
+  
+  // Build context from all tasks
+  const context = {
+    now: state.now.map(x=>x.text),
+    next: state.next.map(x=>x.text),
+    waiting: state.waiting.map(x=>({task:x.text, informed:x.informed, count:x.informedCount, lastDate:x.lastInformed})),
+    projects: state.projects.map(x=>({name:x.text, nextHit:x.nextHit, nextVersion:x.nextVersion})),
+    deadlines: state.deadlines.map(x=>({task:x.text, date:x.date})),
+    learning: state.learning.map(x=>x.text)
+  };
+  
+  const prompt = `You are a productivity advisor analyzing a command center dashboard. Here's what the user is working on:
+
+NOW: ${JSON.stringify(context.now)}
+NEXT: ${JSON.stringify(context.next)}
+PROJECTS: ${JSON.stringify(context.projects)}
+DEADLINES: ${JSON.stringify(context.deadlines)}
+WAITING: ${JSON.stringify(context.waiting)}
+LEARNING: ${JSON.stringify(context.learning)}
+
+Provide brief, actionable advice:
+1. What should they focus on first today?
+2. What's blocked or needs attention?
+3. Any risks or patterns you notice?
+4. Suggested next actions
+
+Keep it concise and practical.`;
+
+  try {
+    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        contents: [{parts: [{text: prompt}]}],
+        generationConfig: {temperature: 0.7, maxOutputTokens: 800}
+      })
+    });
+    
+    if(!res.ok) throw new Error('API error: '+res.status);
+    const data = await res.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
+    
+    responseContainer.innerHTML = `<div class="ai-response">${escapeHtml(text)}</div>`;
+  } catch(e){
+    responseContainer.innerHTML = `<div class="ai-response" style="color:var(--red);">Error: ${e.message}\n\nCheck your API key or try again.</div>`;
+  }
+  
+  btn.disabled = false;
+  btn.textContent = '✨ Get AI Advice';
+}
+
+// Check if Gemini is configured on load
+if(localStorage.getItem(GEMINI_KEY)){
+  document.getElementById('btn-gemini-setup').textContent = '✓ AI Configured';
+  document.getElementById('btn-ai-analyze').style.display = 'inline-block';
+}
+
+// Auto-run insights on load
+setTimeout(analyzeWithRules, 1000);
 </script>
 </body>
 </html>

@@ -72,8 +72,10 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .p-projects{grid-column:span 5;}
 .p-deadlines{grid-column:span 4;}
 .p-learning{grid-column:span 3;}
+.p-nextversion{grid-column:span 12;border-left:2px solid var(--cyan);}
+.p-nextversion .panel-title{color:var(--cyan);}
 .p-archive{grid-column:span 12;}
-@media(max-width:880px){.p-now,.p-next,.p-waiting,.p-projects,.p-deadlines,.p-learning{grid-column:span 12;}}
+@media(max-width:880px){.p-now,.p-next,.p-waiting,.p-projects,.p-deadlines,.p-learning,.p-nextversion{grid-column:span 12;}}
 
 /* LIST ITEMS */
 .items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;flex:1;}
@@ -211,6 +213,11 @@ footer{text-align:center;color:var(--text-faint);font-family:var(--mono);font-si
       <ul class="items" id="list-learning"></ul>
       <div class="add-row"><input type="text" id="input-learning" placeholder="Course / book / tool"><button onclick="addItem('learning')">ADD</button></div>
     </section>
+    <section class="panel p-nextversion">
+      <div class="panel-head"><span class="panel-title">08 · NEXT VERSION</span><span class="panel-count" id="count-nextversion">0</span></div>
+      <ul class="items" id="list-nextversion"></ul>
+      <div class="add-row"><input type="text" id="input-nextversion" placeholder="My next version..."><button onclick="addItem('nextversion')">ADD</button></div>
+    </section>
     <section class="panel p-archive">
       <div class="panel-head"><span class="panel-title">07 · ARCHIVE / INBOX</span><span class="panel-count" id="count-archive">0 items dumped</span></div>
       <div class="archive-body">
@@ -237,11 +244,12 @@ const TOKEN_KEY = 'cc:gh_token';
 
 const SECTION_LABELS = {
   now:'01 · NOW', next:'02 · NEXT', waiting:'06 · WAITING',
-  projects:'03 · PROJECTS', deadlines:'04 · DEADLINES', learning:'05 · LEARNING'
+  projects:'03 · PROJECTS', deadlines:'04 · DEADLINES', learning:'05 · LEARNING',
+  nextversion:'08 · NEXT VERSION'
 };
-const SECTIONS = ['now','next','waiting','projects','deadlines','learning'];
+const SECTIONS = ['now','next','waiting','projects','deadlines','learning','nextversion'];
 
-let state = {now:[],next:[],waiting:[],projects:[],deadlines:[],learning:[],archive:[]};
+let state = {now:[],next:[],waiting:[],projects:[],deadlines:[],learning:[],nextversion:[],archive:[]};
 let fileSha   = null;
 let saveTimer = null;
 let dragSrc   = null;  // {key, id}

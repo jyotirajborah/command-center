@@ -44,7 +44,8 @@
       "text": "complain washroom",
       "informed": true,
       "informedCount": 1,
-      "lastInformed": "2026-08-21"
+      "lastInformed": "2026-08-21",
+      "informedMode": "phone"
     }
   ],
   "projects": [

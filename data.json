@@ -1,10 +1,6 @@
 {
   "now": [
     {
-      "id": "mspxg2nx0q3jk",
-      "text": "Reel - maa - shiv ji"
-    },
-    {
       "id": "mt318k5an7lvg",
       "text": "Email marketing"
     }
@@ -50,6 +46,10 @@
       "informedCount": 1,
       "lastInformed": "2026-08-21",
       "informedMode": "phone"
+    },
+    {
+      "id": "mspxg2nx0q3jk",
+      "text": "Reel - maa - shiv ji"
     }
   ],
   "projects": [

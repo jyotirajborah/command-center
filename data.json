@@ -5,7 +5,12 @@
       "text": "Email marketing"
     }
   ],
-  "next": [],
+  "next": [
+    {
+      "id": "mspxg2nx0q3jk",
+      "text": "Reel - maa - shiv ji"
+    }
+  ],
   "waiting": [
     {
       "id": "mssj89jnlhvm9",
@@ -46,10 +51,6 @@
       "informedCount": 1,
       "lastInformed": "2026-08-21",
       "informedMode": "phone"
-    },
-    {
-      "id": "mspxg2nx0q3jk",
-      "text": "Reel - maa - shiv ji"
     }
   ],
   "projects": [

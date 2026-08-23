@@ -172,7 +172,12 @@
       "date": "2026-08-31"
     }
   ],
-  "learning": [],
+  "learning": [
+    {
+      "id": "mt64334gxzvq6",
+      "text": "webinar"
+    }
+  ],
   "archive": [
     {
       "id": "msvr2jwm7hgs0",

@@ -382,7 +382,7 @@ async function loadFromGitHub(){
     if(!res.ok) throw new Error('HTTP '+res.status);
     const json = await res.json();
     fileSha = json.sha;
-    const decoded = JSON.parse(atob(json.content.replace(/\n/g,'')));
+    const decoded = JSON.parse(decodeURIComponent(escape(atob(json.content.replace(/\n/g,'')))));
     SECTIONS.forEach(k => { state[k] = decoded[k] || []; });
     state.archive = decoded.archive || [];
     state.sectionNumbers = decoded.sectionNumbers || {};

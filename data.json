@@ -77,7 +77,10 @@
     },
     {
       "id": "mt5blngecbvrl",
-      "text": "DM school - Consumer complaint, cyber cell"
+      "text": "DM school - Consumer complaint, cyber cell",
+      "informed": true,
+      "informedCount": 1,
+      "lastInformed": "2026-08-23"
     }
   ],
   "projects": [

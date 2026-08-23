@@ -179,7 +179,7 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .archive-dump textarea:focus{border-color:var(--text-faint);color:var(--text);}
 .archive-dump .dump-btn{margin-top:8px;align-self:flex-start;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.08em;background:var(--amber-dim);border:1px solid var(--amber);color:var(--amber);padding:8px 16px;cursor:pointer;}
 .archive-dump .dump-btn:hover{background:var(--amber);color:#1a1400;}
-.archive-stack{flex:1;min-width:260px;max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;}
+.archive-stack{flex:1;min-width:260px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;}
 .archive-item{background:var(--panel-raised);border:1px solid var(--line);padding:7px 9px;font-size:12.5px;color:var(--text-faint);display:flex;gap:8px;align-items:flex-start;}
 .archive-item .a-time{font-family:var(--mono);font-size:10px;color:var(--text-faint);white-space:nowrap;padding-top:1px;}
 .archive-item .a-text{flex:1;color:var(--text-dim);word-break:break-word;}
@@ -775,7 +775,7 @@ function renderArchive(){
   const items = state.archive;
   countEl.textContent = items.length + ' items dumped';
   if(items.length===0){ stack.innerHTML='<div class="empty-hint">Drawer is empty. Start dumping.</div>'; return; }
-  stack.innerHTML = [...items].reverse().slice(0,50).map(it=>
+  stack.innerHTML = [...items].reverse().map(it=>
     `<div class="archive-item"><span class="a-time">${it.time}</span><span class="a-text">${escapeHtml(it.text)}</span><button onclick="removeItem('archive','${it.id}')" title="Remove">&#215;</button></div>`
   ).join('');
 }

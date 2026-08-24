@@ -93,6 +93,14 @@
       "informedCount": 2,
       "lastInformed": "2026-08-24",
       "informedMode": "WA"
+    },
+    {
+      "id": "mssj89jnlhvm9",
+      "text": "Upanishad Graphics - gurucharan bh",
+      "informed": false,
+      "informedCount": 0,
+      "informedMode": "email",
+      "lastInformed": null
     }
   ],
   "projects": [
@@ -166,11 +174,6 @@
       "id": "mt312q30hlzgi",
       "text": "AI Adv Training - YT - Certificate",
       "date": "2026-08-31"
-    },
-    {
-      "id": "mssj89jnlhvm9",
-      "text": "Upanishad Graphics - gurucharan bh",
-      "date": null
     }
   ],
   "learning": [

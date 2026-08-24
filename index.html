@@ -179,7 +179,7 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .archive-dump textarea:focus{border-color:var(--text-faint);color:var(--text);}
 .archive-dump .dump-btn{margin-top:8px;align-self:flex-start;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.08em;background:var(--amber-dim);border:1px solid var(--amber);color:var(--amber);padding:8px 16px;cursor:pointer;}
 .archive-dump .dump-btn:hover{background:var(--amber);color:#1a1400;}
-.archive-stack{flex:1;min-width:260px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;}
+.archive-stack{flex:1;min-width:260px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;list-style:none;margin:0;padding:0;}
 .archive-item{background:var(--panel-raised);border:1px solid var(--line);padding:7px 9px;font-size:12.5px;color:var(--text-faint);display:flex;gap:8px;align-items:flex-start;}
 .archive-item .a-time{font-family:var(--mono);font-size:10px;color:var(--text-faint);white-space:nowrap;padding-top:1px;}
 .archive-item .a-text{flex:1;color:var(--text-dim);word-break:break-word;}
@@ -294,7 +294,7 @@ footer{text-align:center;color:var(--text-faint);font-family:var(--mono);font-si
           <textarea id="input-archive" placeholder="Paste it. A bookmark, a note, a book title, an idea, a whole list. Don't read it back. Don't sort it. Don't decide if it matters. Just get it out of your head and hit dump."></textarea>
           <button class="dump-btn" onclick="dumpArchive()">DUMP IT</button>
         </div>
-        <div class="archive-stack" id="list-archive"></div>
+        <ul class="items archive-stack" id="list-archive"></ul>
       </div>
       <div class="archive-note">// this is not a filing system. it is a drawer you close. nothing here needs your attention today.</div>
     </section>
@@ -320,13 +320,13 @@ const TOKEN_KEY = 'cc:gh_token';
 
 const SECTION_LABELS = {
   now:'NOW', next:'NEXT', waiting:'WAITING',
-  projects:'PROJECTS', deadlines:'DEADLINES', learning:'LEARNING'
+  projects:'PROJECTS', deadlines:'DEADLINES', learning:'LEARNING', archive:'ARCHIVE'
 };
 const SECTION_NUMBERS = {
   now:'01', next:'02', waiting:'06',
-  projects:'03', deadlines:'04', learning:'05'
+  projects:'03', deadlines:'04', learning:'05', archive:'07'
 };
-const SECTIONS = ['now','next','waiting','projects','deadlines','learning'];
+const SECTIONS = ['now','next','waiting','projects','deadlines','learning','archive'];
 
 let state = {now:[],next:[],waiting:[],projects:[],deadlines:[],learning:[],archive:[],sectionNumbers:{}};
 let fileSha   = null;
@@ -700,10 +700,35 @@ function moveItem(fromKey, id, toKey){
   const idx = state[fromKey].findIndex(x=>x.id===id);
   if(idx===-1) return;
   const [item] = state[fromKey].splice(idx,1);
-  // deadlines panel needs a date field; others don't care about extra fields
-  state[toKey].push(item);
-  renderSection(fromKey);
-  renderSection(toKey);
+  
+  // Clean up and adapt properties based on target category
+  // Keep only: id, text
+  const cleanItem = {id: item.id, text: item.text};
+  
+  // Add category-specific properties
+  if(toKey === 'waiting'){
+    cleanItem.informed = false;
+    cleanItem.informedCount = 0;
+    cleanItem.informedMode = 'email';
+    cleanItem.lastInformed = null;
+  } else if(toKey === 'projects'){
+    cleanItem.nextHit = '';
+    cleanItem.nextVersion = '';
+    cleanItem.nextHitDate = null;
+  } else if(toKey === 'deadlines'){
+    cleanItem.date = null;
+  } else if(toKey === 'archive'){
+    const now = new Date();
+    cleanItem.time = now.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+
+                     now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  }
+  
+  state[toKey].push(cleanItem);
+  
+  if(fromKey === 'archive') renderArchive(); else renderSection(fromKey);
+  if(toKey === 'archive') renderArchive(); else renderSection(toKey);
+  if(toKey === 'projects' || fromKey === 'projects') renderGantt();
+  
   scheduleSave();
   closeAllMoveMenus();
 }
@@ -770,14 +795,64 @@ function updateTimers(){
 
 // ── ARCHIVE ───────────────────────────────────────────────────────────────────
 function renderArchive(){
-  const stack = document.getElementById('list-archive');
+  const ul = document.getElementById('list-archive');
   const countEl = document.getElementById('count-archive');
   const items = state.archive;
   countEl.textContent = items.length + ' items dumped';
-  if(items.length===0){ stack.innerHTML='<div class="empty-hint">Drawer is empty. Start dumping.</div>'; return; }
-  stack.innerHTML = [...items].reverse().map(it=>
-    `<div class="archive-item"><span class="a-time">${it.time}</span><span class="a-text">${escapeHtml(it.text)}</span><button onclick="removeItem('archive','${it.id}')" title="Remove">&#215;</button></div>`
-  ).join('');
+  if(items.length===0){ ul.innerHTML='<div class="empty-hint">Drawer is empty. Start dumping.</div>'; return; }
+  
+  ul.innerHTML = '';
+  [...items].reverse().forEach(it => {
+    const li = document.createElement('li');
+    li.className = 'item';
+    li.draggable = true;
+    li.dataset.id = it.id;
+    li.dataset.key = 'archive';
+
+    // other sections for move menu (exclude archive)
+    const moveOpts = SECTIONS.filter(s=>s!=='archive')
+      .map(s=>{
+        const num = state.sectionNumbers[s] || SECTION_NUMBERS[s];
+        const label = SECTION_LABELS[s];
+        return `<button onclick="moveItem('archive','${it.id}','${s}')">${num} · ${escapeHtml(label)}</button>`;
+      })
+      .join('');
+
+    li.innerHTML = `
+      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      <span class="item-text" onclick="startEdit(this,'archive','${it.id}','text')">${escapeHtml(it.text)}</span>
+      <span class="item-actions">
+        <span class="move-wrap">
+          <button class="btn-move" onclick="toggleMoveMenu(this)" title="Move to...">⇄</button>
+          <span class="move-menu">${moveOpts}</span>
+        </span>
+        <button class="btn-delete" onclick="removeItem('archive','${it.id}')" title="Remove">&#215;</button>
+      </span>`;
+
+    // drag events
+    li.addEventListener('dragstart', e => {
+      dragSrc = {key:'archive', id:it.id};
+      li.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    li.addEventListener('dragend', () => li.classList.remove('dragging'));
+    li.addEventListener('dragover', e => { e.preventDefault(); li.classList.add('drag-over'); });
+    li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+    li.addEventListener('drop', e => {
+      e.preventDefault();
+      li.classList.remove('drag-over');
+      if(!dragSrc || dragSrc.key !== 'archive' || dragSrc.id === it.id) return;
+      const arr = state.archive;
+      const fromIdx = arr.findIndex(x=>x.id===dragSrc.id);
+      const toIdx   = arr.findIndex(x=>x.id===it.id);
+      if(fromIdx===-1||toIdx===-1) return;
+      arr.splice(toIdx, 0, arr.splice(fromIdx,1)[0]);
+      renderArchive();
+      scheduleSave();
+    });
+
+    ul.appendChild(li);
+  });
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -814,10 +889,7 @@ function dumpArchive(){
   const ta = document.getElementById('input-archive');
   const text = ta.value.trim();
   if(!text) return;
-  const now = new Date();
-  const time = now.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+
-               now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  state.archive.push({id:uid(), text, time});
+  state.archive.push({id:uid(), text});
   ta.value='';
   renderArchive();
   scheduleSave();

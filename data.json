@@ -93,6 +93,14 @@
       "informedCount": 2,
       "lastInformed": "2026-08-24",
       "informedMode": "WA"
+    },
+    {
+      "id": "mssj89jnlhvm9",
+      "text": "Upanishad Graphics - gurucharan bh",
+      "informed": false,
+      "informedCount": 0,
+      "informedMode": "email",
+      "lastInformed": null
     }
   ],
   "projects": [
@@ -149,13 +157,6 @@
     {
       "id": "mspvq3c49j733",
       "text": "Digital product"
-    },
-    {
-      "id": "mssj89jnlhvm9",
-      "text": "Upanishad Graphics - gurucharan bh",
-      "nextHit": "",
-      "nextVersion": "",
-      "nextHitDate": null
     }
   ],
   "deadlines": [

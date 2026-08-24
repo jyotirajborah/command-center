@@ -96,7 +96,10 @@
     },
     {
       "id": "mt6r2cyqy8jgv",
-      "text": "kurta -> abhimanyu bhaiya -> nitesh bh"
+      "text": "kurta -> abhimanyu bhaiya -> nitesh bh",
+      "informed": true,
+      "informedCount": 2,
+      "lastInformed": "2026-08-24"
     }
   ],
   "projects": [

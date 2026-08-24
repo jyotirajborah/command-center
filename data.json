@@ -93,14 +93,6 @@
       "informedCount": 2,
       "lastInformed": "2026-08-24",
       "informedMode": "WA"
-    },
-    {
-      "id": "mt6smxaxyg0rp",
-      "text": "test",
-      "informed": false,
-      "informedCount": 0,
-      "informedMode": "email",
-      "lastInformed": null
     }
   ],
   "projects": [
@@ -178,6 +170,11 @@
     {
       "id": "mssj89jnlhvm9",
       "text": "Upanishad Graphics - gurucharan bh",
+      "date": null
+    },
+    {
+      "id": "mt6smxaxyg0rp",
+      "text": "test",
       "date": null
     }
   ],

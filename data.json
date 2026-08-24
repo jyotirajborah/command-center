@@ -7,10 +7,6 @@
   ],
   "next": [
     {
-      "id": "mt318k5an7lvg",
-      "text": "Email marketing"
-    },
-    {
       "id": "mt4h65ya8r5x2",
       "text": "Dashboard Maa Upanishads"
     }
@@ -101,6 +97,14 @@
       "informedCount": 2,
       "lastInformed": "2026-08-24",
       "informedMode": "WA"
+    },
+    {
+      "id": "mt318k5an7lvg",
+      "text": "Email marketing",
+      "informed": false,
+      "informedCount": 0,
+      "informedMode": "email",
+      "lastInformed": null
     }
   ],
   "projects": [

@@ -565,6 +565,20 @@ function renderSection(key){
             ${it.lastInformed ? `<button onclick="clearDate('${it.id}')" style="background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;padding:0 2px;line-height:1;" title="Clear date">×</button>` : ''}
           </div>
         </div>`;
+    } else if(key === 'deadlines'){
+      // DEADLINES: standard layout with editable date
+      li.innerHTML = `
+        <span class="drag-handle" title="Drag to reorder">⠿</span>
+        <span class="item-date ${dateBadge ? deadlineClass(it.date) : 'ok'}" onclick="openDeadlineDatePicker('${it.id}')" style="cursor:pointer;" title="Click to set/change date">${dateBadge ? formatDate(it.date) : 'Set date'}</span>
+        ${timerBadge}
+        <span class="item-text" onclick="startEdit(this,'${key}','${it.id}','text')">${escapeHtml(it.text)}</span>
+        <span class="item-actions">
+          <span class="move-wrap">
+            <button class="btn-move" onclick="toggleMoveMenu(this)" title="Move to...">⇄</button>
+            <span class="move-menu">${moveOpts}</span>
+          </span>
+          <button class="btn-delete" onclick="removeItem('${key}','${it.id}')" title="Remove">&#215;</button>
+        </span>`;
     } else {
       // ALL OTHER SECTIONS: standard layout
       li.innerHTML = `
@@ -977,6 +991,33 @@ function openProjectDatePicker(id){
     item.nextHitDate = input.value || null;
     renderSection('projects');
     renderGantt();
+    scheduleSave();
+    input.remove();
+  });
+  
+  input.addEventListener('blur', () => {
+    setTimeout(() => input.remove(), 100);
+  });
+  
+  input.showPicker();
+}
+
+// ── DEADLINE DATE PICKER ──────────────────────────────────────────────────────
+function openDeadlineDatePicker(id){
+  const item = state.deadlines.find(x=>x.id===id);
+  if(!item) return;
+  
+  const input = document.createElement('input');
+  input.type = 'date';
+  input.value = item.date || '';
+  input.style.position = 'absolute';
+  input.style.opacity = '0';
+  input.style.pointerEvents = 'none';
+  document.body.appendChild(input);
+  
+  input.addEventListener('change', () => {
+    item.date = input.value || null;
+    renderSection('deadlines');
     scheduleSave();
     input.remove();
   });

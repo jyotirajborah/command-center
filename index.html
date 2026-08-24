@@ -146,7 +146,7 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 /* text / edit */
 .item-text{flex:1;word-break:break-word;cursor:pointer;}
 .item-text:hover{color:var(--amber);}
-.item-edit{flex:1;background:transparent;border:none;border-bottom:1px solid var(--amber);color:var(--text);font-family:var(--sans);font-size:13.5px;line-height:1.4;outline:none;padding:0;min-width:0;}
+.item-edit{flex:1;background:transparent;border:none;border-bottom:1px solid var(--amber);color:var(--text);font-family:var(--sans);font-size:13.5px;line-height:1.4;outline:none;padding:0;min-width:0;resize:none;overflow:hidden;}
 
 /* action buttons */
 .item-actions{display:flex;align-items:center;gap:1px;flex-shrink:0;}
@@ -609,31 +609,65 @@ function renderSection(key){
 
 // ── INLINE EDIT ───────────────────────────────────────────────────────────────
 function startEdit(span, key, id, field='text'){
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = field==='text' ? 'item-edit' : field==='informedMode' ? 'waiting-mode-edit' : 'sub-edit';
-  input.value = span.textContent === '—' ? '' : span.textContent;
-  span.replaceWith(input);
-  input.focus();
-  input.select();
-
-  function commit(){
-    const val = input.value.trim();
-    const item = state[key].find(x=>x.id===id);
-    if(item){
-      if(field === 'text') item.text = val || item.text;
-      else if(field === 'nextHit') item.nextHit = val;
-      else if(field === 'nextVersion') item.nextVersion = val;
-      else if(field === 'informedMode') item.informedMode = val || 'email';
-      scheduleSave();
+  if(field === 'text'){
+    // Use textarea for main text fields
+    const textarea = document.createElement('textarea');
+    textarea.className = 'item-edit';
+    textarea.value = span.textContent === '—' ? '' : span.textContent;
+    textarea.rows = 1;
+    span.replaceWith(textarea);
+    textarea.focus();
+    textarea.select();
+    
+    // Auto-resize textarea
+    function autoResize(){
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
     }
-    renderSection(key);
+    textarea.addEventListener('input', autoResize);
+    autoResize();
+
+    function commit(){
+      const val = textarea.value.trim();
+      const item = state[key].find(x=>x.id===id);
+      if(item){
+        item.text = val || item.text;
+        scheduleSave();
+      }
+      if(key === 'archive') renderArchive(); else renderSection(key);
+    }
+    textarea.addEventListener('blur', commit);
+    textarea.addEventListener('keydown', e => {
+      if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); textarea.blur(); }
+      if(e.key==='Escape'){ textarea.removeEventListener('blur',commit); if(key === 'archive') renderArchive(); else renderSection(key); }
+    });
+  } else {
+    // Use input for sub-fields
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = field==='informedMode' ? 'waiting-mode-edit' : 'sub-edit';
+    input.value = span.textContent === '—' ? '' : span.textContent;
+    span.replaceWith(input);
+    input.focus();
+    input.select();
+
+    function commit(){
+      const val = input.value.trim();
+      const item = state[key].find(x=>x.id===id);
+      if(item){
+        if(field === 'nextHit') item.nextHit = val;
+        else if(field === 'nextVersion') item.nextVersion = val;
+        else if(field === 'informedMode') item.informedMode = val || 'email';
+        scheduleSave();
+      }
+      renderSection(key);
+    }
+    input.addEventListener('blur', commit);
+    input.addEventListener('keydown', e => {
+      if(e.key==='Enter'){ e.preventDefault(); input.blur(); }
+      if(e.key==='Escape'){ input.removeEventListener('blur',commit); renderSection(key); }
+    });
   }
-  input.addEventListener('blur', commit);
-  input.addEventListener('keydown', e => {
-    if(e.key==='Enter'){ e.preventDefault(); input.blur(); }
-    if(e.key==='Escape'){ input.removeEventListener('blur',commit); renderSection(key); }
-  });
 }
 
 // ── WAITING: INFORMED TRACKING ────────────────────────────────────────────────

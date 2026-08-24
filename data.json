@@ -97,10 +97,10 @@
     {
       "id": "mssj89jnlhvm9",
       "text": "Upanishad Graphics - gurucharan bh",
-      "informed": false,
-      "informedCount": 0,
+      "informed": true,
+      "informedCount": 1,
       "informedMode": "email",
-      "lastInformed": null
+      "lastInformed": "2026-08-24"
     }
   ],
   "projects": [

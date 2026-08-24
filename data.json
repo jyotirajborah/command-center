@@ -17,14 +17,6 @@
   ],
   "waiting": [
     {
-      "id": "mssj89jnlhvm9",
-      "text": "Upanishad Graphics - gurucharan bh",
-      "informedCount": 1,
-      "informed": true,
-      "lastInformed": "2026-08-24",
-      "informedMode": "email"
-    },
-    {
       "id": "mt30uaey6pg1q",
       "text": "1950 - viaks bh (Bhaskar bhaiya) x 2 = 3900",
       "informed": true,
@@ -157,6 +149,13 @@
     {
       "id": "mspvq3c49j733",
       "text": "Digital product"
+    },
+    {
+      "id": "mssj89jnlhvm9",
+      "text": "Upanishad Graphics - gurucharan bh",
+      "nextHit": "",
+      "nextVersion": "",
+      "nextHitDate": null
     }
   ],
   "deadlines": [

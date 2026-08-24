@@ -149,13 +149,6 @@
     {
       "id": "mspvq3c49j733",
       "text": "Digital product"
-    },
-    {
-      "id": "mt6smxaxyg0rp",
-      "text": "test",
-      "nextHit": "",
-      "nextVersion": "",
-      "nextHitDate": null
     }
   ],
   "deadlines": [
@@ -177,6 +170,11 @@
     {
       "id": "mssj89jnlhvm9",
       "text": "Upanishad Graphics - gurucharan bh",
+      "date": null
+    },
+    {
+      "id": "mt6smxaxyg0rp",
+      "text": "test",
       "date": null
     }
   ],

@@ -81,6 +81,8 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .p-waiting{border-left:2px dashed var(--text-faint);}
 .p-projects{border-left:2px solid var(--cyan);}
 .p-projects .panel-title{color:var(--cyan);}
+.p-festival{border-left:2px solid var(--amber);}
+.p-festival .panel-title{color:var(--amber);}
 .p-archive{grid-column:1 / -1;}
 
 @media(max-width:900px){
@@ -193,6 +195,7 @@ h1{font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,44px);letter
 .gantt-container{display:flex;flex-direction:column;gap:8px;}
 .gantt-row{display:flex;align-items:center;gap:12px;background:var(--panel-raised);border:1px solid var(--line);padding:10px 12px;}
 .gantt-label{font-family:var(--sans);font-size:13px;color:var(--text);min-width:200px;flex-shrink:0;}
+.gantt-nexthit{font-size:11px;color:var(--text-dim);margin-top:3px;font-style:italic;}
 .gantt-track{flex:1;height:28px;background:#0e1113;border:1px solid var(--line);position:relative;overflow:hidden;}
 .gantt-bar{position:absolute;height:100%;background:linear-gradient(90deg, var(--cyan), var(--cyan-dim));border-right:2px solid var(--cyan);display:flex;align-items:center;padding:0 8px;font-family:var(--mono);font-size:10px;color:#000;white-space:nowrap;}
 .gantt-date{font-family:var(--mono);font-size:11px;color:var(--text-dim);min-width:80px;text-align:right;flex-shrink:0;}
@@ -286,6 +289,15 @@ footer{text-align:center;color:var(--text-faint);font-family:var(--mono);font-si
         <ul class="items" id="list-learning"></ul>
         <div class="add-row"><input type="text" id="input-learning" placeholder="Course / book / tool"><button onclick="addItem('learning')">ADD</button></div>
       </section>
+      <section class="panel p-festival">
+        <div class="panel-head"><span class="panel-title">08 · FESTIVAL</span><span class="panel-count" id="count-festival">0</span></div>
+        <ul class="items" id="list-festival"></ul>
+        <div class="add-row">
+          <input type="text" id="input-festival" placeholder="Festival / Event">
+          <input type="date" id="input-festival-date">
+          <button onclick="addFestival()">ADD</button>
+        </div>
+      </section>
     </div>
     <section class="panel p-archive">
       <div class="panel-head"><span class="panel-title">07 · ARCHIVE / INBOX</span><span class="panel-count" id="count-archive">0 items dumped</span></div>
@@ -320,15 +332,15 @@ const TOKEN_KEY = 'cc:gh_token';
 
 const SECTION_LABELS = {
   now:'NOW', next:'NEXT', waiting:'WAITING',
-  projects:'PROJECTS', deadlines:'DEADLINES', learning:'LEARNING', archive:'ARCHIVE'
+  projects:'PROJECTS', deadlines:'DEADLINES', learning:'LEARNING', festival:'FESTIVAL', archive:'ARCHIVE'
 };
 const SECTION_NUMBERS = {
   now:'01', next:'02', waiting:'06',
-  projects:'03', deadlines:'04', learning:'05', archive:'07'
+  projects:'03', deadlines:'04', learning:'05', festival:'08', archive:'07'
 };
-const SECTIONS = ['now','next','waiting','projects','deadlines','learning','archive'];
+const SECTIONS = ['now','next','waiting','projects','deadlines','learning','festival','archive'];
 
-let state = {now:[],next:[],waiting:[],projects:[],deadlines:[],learning:[],archive:[],sectionNumbers:{}};
+let state = {now:[],next:[],waiting:[],projects:[],deadlines:[],learning:[],festival:[],archive:[],sectionNumbers:{}};
 let fileSha   = null;
 let saveTimer = null;
 let dragSrc   = null;  // {key, id}
@@ -472,7 +484,7 @@ function renderSection(key){
   ul.innerHTML = '';
   sorted.forEach(it => {
     const li = document.createElement('li');
-    li.className = key==='projects' ? 'item item-project' : key==='waiting' ? 'item item-waiting' : 'item';
+    li.className = key==='projects' ? 'item item-project' : key==='waiting' ? 'item item-waiting' : key==='festival' ? 'item item-project' : 'item';
     li.draggable = true;
     li.dataset.id = it.id;
     li.dataset.key = key;
@@ -579,6 +591,29 @@ function renderSection(key){
           </span>
           <button class="btn-delete" onclick="removeItem('${key}','${it.id}')" title="Remove">&#215;</button>
         </span>`;
+    } else if(key === 'festival'){
+      // FESTIVAL: special layout with preparation field and date
+      const festDate = it.date ? formatDate(it.date) : '—';
+      
+      li.innerHTML = `
+        <div class="project-main">
+          <span class="drag-handle" title="Drag to reorder">⠿</span>
+          <span class="item-date ${it.date ? deadlineClass(it.date) : 'ok'}" onclick="openFestivalDatePicker('${it.id}')" style="cursor:pointer;" title="Click to set/change date">${festDate}</span>
+          <span class="item-text" onclick="startEdit(this,'${key}','${it.id}','text')">${escapeHtml(it.text)}</span>
+          <span class="item-actions">
+            <span class="move-wrap">
+              <button class="btn-move" onclick="toggleMoveMenu(this)" title="Move to...">⇄</button>
+              <span class="move-menu">${moveOpts}</span>
+            </span>
+            <button class="btn-delete" onclick="removeItem('${key}','${it.id}')" title="Remove">&#215;</button>
+          </span>
+        </div>
+        <div class="project-subs">
+          <div class="sub-field">
+            <span class="sub-label">Preparation:</span>
+            <span class="sub-value" onclick="startEdit(this,'${key}','${it.id}','preparation')">${escapeHtml(it.preparation||'—')}</span>
+          </div>
+        </div>`;
     } else {
       // ALL OTHER SECTIONS: standard layout
       li.innerHTML = `
@@ -672,6 +707,7 @@ function startEdit(span, key, id, field='text'){
         if(field === 'nextHit') item.nextHit = val;
         else if(field === 'nextVersion') item.nextVersion = val;
         else if(field === 'informedMode') item.informedMode = val || 'email';
+        else if(field === 'preparation') item.preparation = val;
         scheduleSave();
       }
       renderSection(key);
@@ -764,6 +800,9 @@ function moveItem(fromKey, id, toKey){
     cleanItem.nextVersion = '';
     cleanItem.nextHitDate = null;
   } else if(toKey === 'deadlines'){
+    cleanItem.date = null;
+  } else if(toKey === 'festival'){
+    cleanItem.preparation = '';
     cleanItem.date = null;
   } else if(toKey === 'archive'){
     const now = new Date();
@@ -933,6 +972,17 @@ function addDeadline(){
   scheduleSave();
 }
 
+function addFestival(){
+  const input = document.getElementById('input-festival');
+  const dateInput = document.getElementById('input-festival-date');
+  const text = input.value.trim();
+  if(!text) return;
+  state.festival.push({id:uid(), text, date:dateInput.value||null, preparation:''});
+  input.value=''; dateInput.value='';
+  renderSection('festival');
+  scheduleSave();
+}
+
 function dumpArchive(){
   const ta = document.getElementById('input-archive');
   const text = ta.value.trim();
@@ -951,10 +1001,11 @@ function removeItem(key, id){
 
 // ── KEYBOARD ──────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', ()=>{
-  SECTIONS.filter(k=>k!=='deadlines').forEach(key=>{
+  SECTIONS.filter(k=>k!=='deadlines' && k!=='festival' && k!=='archive').forEach(key=>{
     document.getElementById('input-'+key).addEventListener('keydown', e=>{ if(e.key==='Enter') addItem(key); });
   });
   document.getElementById('input-deadlines').addEventListener('keydown', e=>{ if(e.key==='Enter') addDeadline(); });
+  document.getElementById('input-festival').addEventListener('keydown', e=>{ if(e.key==='Enter') addFestival(); });
   document.getElementById('token-input').addEventListener('keydown', e=>{ if(e.key==='Enter') submitToken(); });
 });
 
@@ -1029,6 +1080,33 @@ function openDeadlineDatePicker(id){
   input.showPicker();
 }
 
+// ── FESTIVAL DATE PICKER ──────────────────────────────────────────────────────
+function openFestivalDatePicker(id){
+  const item = state.festival.find(x=>x.id===id);
+  if(!item) return;
+  
+  const input = document.createElement('input');
+  input.type = 'date';
+  input.value = item.date || '';
+  input.style.position = 'absolute';
+  input.style.opacity = '0';
+  input.style.pointerEvents = 'none';
+  document.body.appendChild(input);
+  
+  input.addEventListener('change', () => {
+    item.date = input.value || null;
+    renderSection('festival');
+    scheduleSave();
+    input.remove();
+  });
+  
+  input.addEventListener('blur', () => {
+    setTimeout(() => input.remove(), 100);
+  });
+  
+  input.showPicker();
+}
+
 // ── GANTT CHART ───────────────────────────────────────────────────────────────
 function renderGantt(){
   const container = document.getElementById('gantt-container');
@@ -1065,9 +1143,14 @@ function renderGantt(){
       else if(daysUntil === 1) statusText = 'tomorrow';
       else statusText = `${daysUntil}d`;
       
+      const nextHitText = p.nextHit ? `<div class="gantt-nexthit">${escapeHtml(p.nextHit)}</div>` : '';
+      
       return `
         <div class="gantt-row">
-          <div class="gantt-label">${escapeHtml(p.text)}</div>
+          <div class="gantt-label">
+            ${escapeHtml(p.text)}
+            ${nextHitText}
+          </div>
           <div class="gantt-track">
             <div class="gantt-bar" style="left:${leftPercent}%;width:${widthPercent}%">${statusText}</div>
           </div>

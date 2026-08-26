@@ -54,7 +54,8 @@
       "text": "DM school - warning otherwise Consumer complaint, cyber cell",
       "informed": true,
       "informedCount": 1,
-      "lastInformed": "2026-08-23"
+      "lastInformed": "2026-08-23",
+      "informedMode": "email + WA"
     },
     {
       "id": "mt62rmq8quw2i",
